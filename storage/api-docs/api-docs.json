@@ -16,6 +16,10 @@
         {
             "url": "http://localhost:8000",
             "description": "Demo API Server"
+        },
+        {
+            "url": "http://api.meem-market.com/",
+            "description": "Production Server"
         }
     ],
     "paths": {
@@ -1270,6 +1274,334 @@
                 ]
             }
         },
+        "/api/v1/admin/categories": {
+            "get": {
+                "tags": [
+                    "Admin Taxonomies"
+                ],
+                "summary": "List categories (paginated)",
+                "description": "Returns a paginated list of categories with optional filters.",
+                "operationId": "listCategories",
+                "parameters": [
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "parent",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "hide_empty",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "default": false
+                        }
+                    },
+                    {
+                        "name": "sort_by",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "name",
+                            "enum": [
+                                "name",
+                                "count",
+                                "id"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "sort_dir",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "asc",
+                            "enum": [
+                                "asc",
+                                "desc"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 20
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Paginated term list"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Admin Taxonomies"
+                ],
+                "summary": "Create a new category",
+                "description": "Creates a new category/tag. Auto-generates slug from name if not provided.",
+                "operationId": "createCategory",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Technology"
+                                    },
+                                    "slug": {
+                                        "type": "string",
+                                        "example": "technology"
+                                    },
+                                    "parent_id": {
+                                        "type": "integer",
+                                        "example": null,
+                                        "nullable": true
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "example": "Tech-related posts"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Term created"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/categories/{id}": {
+            "get": {
+                "tags": [
+                    "Admin Taxonomies"
+                ],
+                "summary": "Get a single category",
+                "description": "Returns a full category/tag with details.",
+                "operationId": "showCategory",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Term details"
+                    },
+                    "404": {
+                        "description": "Term not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Admin Taxonomies"
+                ],
+                "summary": "Update a category",
+                "description": "Updates a category/tag.",
+                "operationId": "updateCategory",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "slug": {
+                                        "type": "string"
+                                    },
+                                    "parent_id": {
+                                        "type": "integer",
+                                        "nullable": true
+                                    },
+                                    "description": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Term updated"
+                    },
+                    "404": {
+                        "description": "Term not found"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Admin Taxonomies"
+                ],
+                "summary": "Delete a category",
+                "description": "Deletes a category/tag. Cannot delete the default category. Only removes relationships (posts are not deleted).",
+                "operationId": "deleteCategory",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Term deleted"
+                    },
+                    "404": {
+                        "description": "Term not found"
+                    },
+                    "422": {
+                        "description": "Cannot delete default category"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/categories/bulk": {
+            "post": {
+                "tags": [
+                    "Admin Taxonomies"
+                ],
+                "summary": "Perform bulk term action",
+                "description": "Supports action: delete. Removes selected terms and their relationships.",
+                "operationId": "bulkCategoryAction",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "action",
+                                    "term_ids"
+                                ],
+                                "properties": {
+                                    "action": {
+                                        "type": "string",
+                                        "enum": [
+                                            "delete"
+                                        ]
+                                    },
+                                    "term_ids": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Bulk action completed"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
         "/api/v1/admin/users": {
             "get": {
                 "tags": [
@@ -2157,6 +2489,32 @@
                 }
             }
         },
+        "/api/v1/offer-categories": {
+            "get": {
+                "tags": [
+                    "Offer Categories"
+                ],
+                "summary": "Get list of offer categories",
+                "description": "Returns active offer categories, optionally filtered by branch",
+                "operationId": "getOfferCategories",
+                "parameters": [
+                    {
+                        "name": "branch_slug",
+                        "in": "query",
+                        "description": "Branch Slug",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    }
+                }
+            }
+        },
         "/api/v1/offers": {
             "get": {
                 "tags": [
@@ -2366,6 +2724,52 @@
                 },
                 "type": "object"
             },
+            "AdminTerm": {
+                "title": "Admin Term Resource",
+                "description": "Term (category/tag/custom taxonomy) with full details",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "term_id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Technology"
+                    },
+                    "slug": {
+                        "type": "string",
+                        "example": "technology"
+                    },
+                    "taxonomy": {
+                        "type": "string",
+                        "example": "category"
+                    },
+                    "description": {
+                        "type": "string",
+                        "example": "Articles about technology"
+                    },
+                    "parent": {
+                        "type": "integer",
+                        "example": null,
+                        "nullable": true
+                    },
+                    "count": {
+                        "description": "Number of posts using this term",
+                        "type": "integer",
+                        "example": 5
+                    },
+                    "parent_term": {
+                        "description": "Parent term details if hierarchical",
+                        "type": "object",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
             "AdminUser": {
                 "title": "Admin User",
                 "description": "Admin user profile representation",
@@ -2516,6 +2920,10 @@
             "description": "Post & Page CRUD, revisions, trash, bulk operations"
         },
         {
+            "name": "Admin Taxonomies",
+            "description": "Category, Tag, and Custom Taxonomy CRUD"
+        },
+        {
             "name": "Admin Users",
             "description": "User management CRUD and bulk operations"
         },
@@ -2550,6 +2958,10 @@
         {
             "name": "Home",
             "description": "Home"
+        },
+        {
+            "name": "Offer Categories",
+            "description": "Offer Categories"
         },
         {
             "name": "Offers",
