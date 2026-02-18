@@ -3,6 +3,8 @@
 use App\Http\Controllers\Api\V1\AboutController;
 use App\Http\Controllers\Api\V1\Admin\AuthController;
 use App\Http\Controllers\Api\V1\Admin\DashboardController;
+use App\Http\Controllers\Api\V1\Admin\PostController;
+use App\Http\Controllers\Api\V1\ContentController;
 use App\Http\Controllers\Api\V1\Admin\UserController;
 use App\Http\Controllers\Api\V1\BranchController;
 use App\Http\Controllers\Api\V1\CareerController;
@@ -26,6 +28,11 @@ Route::prefix('v1')->group(function () {
     Route::get('/contact', [ContactController::class, 'index']);
     Route::post('/contact', [ContactController::class, 'store']);
     Route::get('/settings/{group}', [SettingController::class, 'show']);
+
+    // Blog & Pages — public read-only (CMS content)
+    Route::get('/blog', [ContentController::class, 'blogIndex']);
+    Route::get('/blog/{slug}', [ContentController::class, 'blogShow']);
+    Route::get('/pages/{slug}', [ContentController::class, 'pageShow']);
 });
 
 // ─── ADMIN ROUTES ────────────────────────────────────────────────
@@ -71,6 +78,54 @@ Route::prefix('v1/admin')->group(function () {
                 ->middleware('can_do:edit_users');
             Route::delete('/{user}', [UserController::class, 'destroy'])
                 ->middleware('can_do:delete_users');
+        });
+
+        // Post Management (Sprint 4)
+        Route::prefix('posts')->group(function () {
+            Route::get('/', [PostController::class, 'index'])
+                ->middleware('can_do:edit_posts');
+            Route::post('/', [PostController::class, 'store'])
+                ->middleware('can_do:edit_posts');
+            Route::post('/bulk', [PostController::class, 'bulk'])
+                ->middleware('can_do:edit_posts');
+            Route::get('/{post}', [PostController::class, 'show'])
+                ->middleware('can_do:edit_posts');
+            Route::put('/{post}', [PostController::class, 'update'])
+                ->middleware('can_do:edit_posts');
+            Route::delete('/{post}', [PostController::class, 'destroy'])
+                ->middleware('can_do:delete_posts');
+            Route::put('/{post}/trash', [PostController::class, 'trash'])
+                ->middleware('can_do:delete_posts');
+            Route::put('/{post}/restore', [PostController::class, 'restore'])
+                ->middleware('can_do:edit_posts');
+            Route::get('/{post}/revisions', [PostController::class, 'listRevisions'])
+                ->middleware('can_do:edit_posts');
+            Route::post('/{post}/revisions/{revision}/restore', [PostController::class, 'restoreRevision'])
+                ->middleware('can_do:edit_posts');
+        });
+
+        // Page Management (Sprint 4) — same controller, different type
+        Route::prefix('pages')->group(function () {
+            Route::get('/', [PostController::class, 'index'])
+                ->middleware('can_do:edit_pages');
+            Route::post('/', [PostController::class, 'store'])
+                ->middleware('can_do:edit_pages');
+            Route::post('/bulk', [PostController::class, 'bulk'])
+                ->middleware('can_do:edit_pages');
+            Route::get('/{page}', [PostController::class, 'show'])
+                ->middleware('can_do:edit_pages');
+            Route::put('/{page}', [PostController::class, 'update'])
+                ->middleware('can_do:edit_pages');
+            Route::delete('/{page}', [PostController::class, 'destroy'])
+                ->middleware('can_do:delete_pages');
+            Route::put('/{page}/trash', [PostController::class, 'trash'])
+                ->middleware('can_do:delete_pages');
+            Route::put('/{page}/restore', [PostController::class, 'restore'])
+                ->middleware('can_do:edit_pages');
+            Route::get('/{page}/revisions', [PostController::class, 'listRevisions'])
+                ->middleware('can_do:edit_pages');
+            Route::post('/{page}/revisions/{revision}/restore', [PostController::class, 'restoreRevision'])
+                ->middleware('can_do:edit_pages');
         });
     });
 });

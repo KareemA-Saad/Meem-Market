@@ -105,4 +105,41 @@ class Post extends Model
     {
         return $query->where('status', 'publish');
     }
+
+    public function scopeNotRevision(Builder $query): Builder
+    {
+        return $query->where('type', '!=', 'revision');
+    }
+
+    public function scopeTrash(Builder $query): Builder
+    {
+        return $query->where('status', 'trash');
+    }
+
+    // ─── Additional Relationships ───────────────────────────────
+
+    /**
+     * Featured image (attachment post) stored as _thumbnail_id in post_meta.
+     */
+    public function featuredImage(): BelongsTo
+    {
+        $thumbnailMeta = $this->meta()
+            ->where('meta_key', '_thumbnail_id')
+            ->first();
+
+        $imageId = $thumbnailMeta?->meta_value;
+
+        return $this->belongsTo(self::class, 'parent_id')
+            ->where('id', $imageId ?? 0);
+    }
+
+    /**
+     * Revisions — child posts of type 'revision'.
+     */
+    public function revisions(): HasMany
+    {
+        return $this->hasMany(self::class, 'parent_id')
+            ->where('type', 'revision')
+            ->orderByDesc('post_modified');
+    }
 }
