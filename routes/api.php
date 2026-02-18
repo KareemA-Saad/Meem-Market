@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\V1\AboutController;
 use App\Http\Controllers\Api\V1\Admin\AuthController;
 use App\Http\Controllers\Api\V1\Admin\DashboardController;
+use App\Http\Controllers\Api\V1\Admin\MediaController;
 use App\Http\Controllers\Api\V1\Admin\PostController;
 use App\Http\Controllers\Api\V1\Admin\TaxonomyController;
 use App\Http\Controllers\Api\V1\ContentController;
@@ -177,6 +178,24 @@ Route::prefix('v1/admin')->group(function () {
                 ->middleware('can_do:manage_categories');
             Route::delete('/{id}', [TaxonomyController::class, 'destroy'])
                 ->middleware('can_do:manage_categories');
+        });
+
+        // Media Library (Sprint 6)
+        Route::prefix('media')->group(function () {
+            Route::get('/', [MediaController::class, 'index'])
+                ->middleware('can_do:upload_files');
+            Route::post('/upload', [MediaController::class, 'upload'])
+                ->middleware('can_do:upload_files');
+            Route::post('/bulk', [MediaController::class, 'bulk'])
+                ->middleware('can_do:delete_posts');
+            Route::get('/{id}', [MediaController::class, 'show'])
+                ->middleware('can_do:upload_files');
+            Route::put('/{id}', [MediaController::class, 'update'])
+                ->middleware('can_do:upload_files');
+            Route::delete('/{id}', [MediaController::class, 'destroy'])
+                ->middleware('can_do:delete_posts');
+            Route::post('/{id}/edit', [MediaController::class, 'edit'])
+                ->middleware('can_do:upload_files');
         });
     });
 });
