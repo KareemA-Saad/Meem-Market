@@ -16,12 +16,13 @@ class OfferCategoryResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'title' => $this->title, // Translatable if needed, but schema has single title column + model logic might differ
+            'title' => $this->title,
             'slug' => $this->slug,
             'cover_image' => $this->cover_image,
             'start_date' => $this->start_date,
             'end_date' => $this->end_date,
             'is_active' => $this->is_active,
+            'sort_order' => $this->sort_order,
             'is_expired' => $this->is_expired, // Accessor
             'offers_count' => $this->whenCounted('offers'),
             'offers' => OfferResource::collection($this->whenLoaded('offers')),

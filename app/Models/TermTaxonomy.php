@@ -47,4 +47,20 @@ class TermTaxonomy extends Model
             'object_id',
         )->withPivot('term_order');
     }
+
+    /**
+     * Parent term taxonomy (for hierarchical taxonomies).
+     */
+    public function parentTerm(): BelongsTo
+    {
+        return $this->belongsTo(TermTaxonomy::class, 'parent', 'id');
+    }
+
+    /**
+     * Child term taxonomies (for hierarchical taxonomies).
+     */
+    public function children()
+    {
+        return $this->hasMany(TermTaxonomy::class, 'parent', 'id');
+    }
 }

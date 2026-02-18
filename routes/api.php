@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\V1\AboutController;
 use App\Http\Controllers\Api\V1\Admin\AuthController;
 use App\Http\Controllers\Api\V1\Admin\DashboardController;
 use App\Http\Controllers\Api\V1\Admin\PostController;
+use App\Http\Controllers\Api\V1\Admin\TaxonomyController;
 use App\Http\Controllers\Api\V1\ContentController;
 use App\Http\Controllers\Api\V1\Admin\UserController;
 use App\Http\Controllers\Api\V1\BranchController;
@@ -12,6 +13,7 @@ use App\Http\Controllers\Api\V1\ContactController;
 use App\Http\Controllers\Api\V1\CountryController;
 use App\Http\Controllers\Api\V1\HomeController;
 use App\Http\Controllers\Api\V1\OfferController;
+use App\Http\Controllers\Api\V1\OfferCategoryController;
 use App\Http\Controllers\Api\V1\SettingController;
 use Illuminate\Support\Facades\Route;
 
@@ -22,6 +24,7 @@ Route::prefix('v1')->group(function () {
     Route::get('/branches', [BranchController::class, 'index']);
     Route::get('/branches/{slug}', [BranchController::class, 'show']);
     Route::get('/offers', [OfferController::class, 'index']);
+    Route::get('/offer-categories', [OfferCategoryController::class, 'index']);
     Route::get('/about', [AboutController::class, 'index']);
     Route::get('/careers', [CareerController::class, 'index']);
     Route::get('/careers/{slug}', [CareerController::class, 'show']);
@@ -126,6 +129,54 @@ Route::prefix('v1/admin')->group(function () {
                 ->middleware('can_do:edit_pages');
             Route::post('/{page}/revisions/{revision}/restore', [PostController::class, 'restoreRevision'])
                 ->middleware('can_do:edit_pages');
+        });
+
+        // Category Management (Sprint 5)
+        Route::prefix('categories')->group(function () {
+            Route::get('/', [TaxonomyController::class, 'index'])
+                ->middleware('can_do:manage_categories');
+            Route::post('/', [TaxonomyController::class, 'store'])
+                ->middleware('can_do:manage_categories');
+            Route::post('/bulk', [TaxonomyController::class, 'bulk'])
+                ->middleware('can_do:manage_categories');
+            Route::get('/{id}', [TaxonomyController::class, 'show'])
+                ->middleware('can_do:manage_categories');
+            Route::put('/{id}', [TaxonomyController::class, 'update'])
+                ->middleware('can_do:manage_categories');
+            Route::delete('/{id}', [TaxonomyController::class, 'destroy'])
+                ->middleware('can_do:manage_categories');
+        });
+
+        // Tag Management (Sprint 5)
+        Route::prefix('tags')->group(function () {
+            Route::get('/', [TaxonomyController::class, 'index'])
+                ->middleware('can_do:manage_categories');
+            Route::post('/', [TaxonomyController::class, 'store'])
+                ->middleware('can_do:manage_categories');
+            Route::post('/bulk', [TaxonomyController::class, 'bulk'])
+                ->middleware('can_do:manage_categories');
+            Route::get('/{id}', [TaxonomyController::class, 'show'])
+                ->middleware('can_do:manage_categories');
+            Route::put('/{id}', [TaxonomyController::class, 'update'])
+                ->middleware('can_do:manage_categories');
+            Route::delete('/{id}', [TaxonomyController::class, 'destroy'])
+                ->middleware('can_do:manage_categories');
+        });
+
+        // Custom Taxonomy Management (Sprint 5) — generic routes
+        Route::prefix('taxonomies/{taxonomy}/terms')->group(function () {
+            Route::get('/', [TaxonomyController::class, 'index'])
+                ->middleware('can_do:manage_categories');
+            Route::post('/', [TaxonomyController::class, 'store'])
+                ->middleware('can_do:manage_categories');
+            Route::post('/bulk', [TaxonomyController::class, 'bulk'])
+                ->middleware('can_do:manage_categories');
+            Route::get('/{id}', [TaxonomyController::class, 'show'])
+                ->middleware('can_do:manage_categories');
+            Route::put('/{id}', [TaxonomyController::class, 'update'])
+                ->middleware('can_do:manage_categories');
+            Route::delete('/{id}', [TaxonomyController::class, 'destroy'])
+                ->middleware('can_do:manage_categories');
         });
     });
 });
