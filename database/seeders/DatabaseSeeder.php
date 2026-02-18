@@ -23,6 +23,10 @@ class DatabaseSeeder extends Seeder
             SettingSeeder::class,
             OfferCategorySeeder::class,
             OfferSeeder::class,
+
+            // CMS Admin Layer (Sprint 1)
+            OptionSeeder::class,
+            AdminSeeder::class,
         ]);
     }
 }

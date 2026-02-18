@@ -15,6 +15,11 @@ use OpenApi\Attributes as OA;
     url: "http://localhost:8000",
     description: "Demo API Server"
 )]
-class Swagger
-{
-}
+#[OA\SecurityScheme(
+    securityScheme: "sanctum",
+    type: "http",
+    scheme: "bearer",
+    bearerFormat: "Sanctum",
+    description: "Enter the token returned from /api/v1/admin/auth/login"
+)]
+class Swagger {}

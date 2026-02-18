@@ -12,7 +12,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        $middleware->alias([
+            'can_do' => \App\Http\Middleware\CheckCapability::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
