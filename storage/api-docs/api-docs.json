@@ -2562,6 +2562,35 @@
                 }
             }
         },
+        "/api/v1/offers/{id}": {
+            "get": {
+                "tags": [
+                    "Offers"
+                ],
+                "summary": "Get a single offer by ID",
+                "description": "Returns a single active offer with its category and branch",
+                "operationId": "getOfferById",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Offer ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    },
+                    "404": {
+                        "description": "Offer not found"
+                    }
+                }
+            }
+        },
         "/api/v1/settings/{group}": {
             "get": {
                 "tags": [

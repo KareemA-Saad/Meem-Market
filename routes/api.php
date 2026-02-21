@@ -24,6 +24,7 @@ Route::prefix('v1')->group(function () {
     Route::get('/branches', [BranchController::class, 'index']);
     Route::get('/branches/{slug}', [BranchController::class, 'show']);
     Route::get('/offers', [OfferController::class, 'index']);
+    Route::get('/offers/{id}', [OfferController::class, 'show']);
     Route::get('/offer-categories', [OfferCategoryController::class, 'index']);
     Route::get('/about', [AboutController::class, 'index']);
     Route::get('/careers', [CareerController::class, 'index']);
