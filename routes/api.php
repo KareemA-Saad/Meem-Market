@@ -2,8 +2,16 @@
 
 use App\Http\Controllers\Api\V1\AboutController;
 use App\Http\Controllers\Api\V1\Admin\AuthController;
+use App\Http\Controllers\Api\V1\Admin\CommentController;
+use App\Http\Controllers\Api\V1\Admin\ContentTypeController;
+use App\Http\Controllers\Api\V1\Admin\CustomFieldController;
 use App\Http\Controllers\Api\V1\Admin\DashboardController;
+use App\Http\Controllers\Api\V1\Admin\ExportController;
+use App\Http\Controllers\Api\V1\Admin\MediaController;
+use App\Http\Controllers\Api\V1\Admin\MenuController;
 use App\Http\Controllers\Api\V1\Admin\PostController;
+use App\Http\Controllers\Api\V1\Admin\SettingsController;
+use App\Http\Controllers\Api\V1\Admin\SiteHealthController;
 use App\Http\Controllers\Api\V1\Admin\TaxonomyController;
 use App\Http\Controllers\Api\V1\ContentController;
 use App\Http\Controllers\Api\V1\Admin\UserController;
@@ -178,6 +186,99 @@ Route::prefix('v1/admin')->group(function () {
                 ->middleware('can_do:manage_categories');
             Route::delete('/{id}', [TaxonomyController::class, 'destroy'])
                 ->middleware('can_do:manage_categories');
+        });
+
+        // ── Sprint 6: Media Library ──────────────────────────────
+        Route::prefix('media')->group(function () {
+            Route::get('/', [MediaController::class, 'index'])
+                ->middleware('can_do:upload_files');
+            Route::post('/upload', [MediaController::class, 'upload'])
+                ->middleware('can_do:upload_files');
+            Route::post('/bulk', [MediaController::class, 'bulk'])
+                ->middleware('can_do:upload_files');
+            Route::get('/{id}', [MediaController::class, 'show'])
+                ->middleware('can_do:upload_files');
+            Route::put('/{id}', [MediaController::class, 'update'])
+                ->middleware('can_do:upload_files');
+            Route::delete('/{id}', [MediaController::class, 'destroy'])
+                ->middleware('can_do:upload_files');
+        });
+
+        // ── Sprint 7: Comment Management ─────────────────────────
+        Route::prefix('comments')->group(function () {
+            Route::get('/', [CommentController::class, 'index'])
+                ->middleware('can_do:moderate_comments');
+            Route::post('/bulk', [CommentController::class, 'bulk'])
+                ->middleware('can_do:moderate_comments');
+            Route::get('/{id}', [CommentController::class, 'show'])
+                ->middleware('can_do:moderate_comments');
+            Route::put('/{id}', [CommentController::class, 'update'])
+                ->middleware('can_do:moderate_comments');
+            Route::delete('/{id}', [CommentController::class, 'destroy'])
+                ->middleware('can_do:moderate_comments');
+            Route::post('/{id}/approve', [CommentController::class, 'approve'])
+                ->middleware('can_do:moderate_comments');
+            Route::post('/{id}/unapprove', [CommentController::class, 'unapprove'])
+                ->middleware('can_do:moderate_comments');
+            Route::post('/{id}/spam', [CommentController::class, 'spam'])
+                ->middleware('can_do:moderate_comments');
+            Route::post('/{id}/trash', [CommentController::class, 'trash'])
+                ->middleware('can_do:moderate_comments');
+            Route::post('/{id}/restore', [CommentController::class, 'restore'])
+                ->middleware('can_do:moderate_comments');
+            Route::post('/{id}/reply', [CommentController::class, 'reply'])
+                ->middleware('can_do:moderate_comments');
+        });
+
+        // ── Sprint 7: Settings Management ────────────────────────
+        Route::prefix('settings')->middleware('can_do:manage_options')->group(function () {
+            Route::get('/{section}', [SettingsController::class, 'show']);
+            Route::put('/{section}', [SettingsController::class, 'update']);
+        });
+
+        // ── Sprint 8: Content Type Definitions ───────────────────
+        Route::prefix('content-types')->middleware('can_do:manage_options')->group(function () {
+            Route::get('/post-types', [ContentTypeController::class, 'indexPostTypes']);
+            Route::post('/post-types', [ContentTypeController::class, 'storePostType']);
+            Route::get('/post-types/{slug}', [ContentTypeController::class, 'showPostType']);
+            Route::put('/post-types/{slug}', [ContentTypeController::class, 'updatePostType']);
+            Route::delete('/post-types/{slug}', [ContentTypeController::class, 'destroyPostType']);
+
+            Route::get('/taxonomies', [ContentTypeController::class, 'indexTaxonomies']);
+            Route::post('/taxonomies', [ContentTypeController::class, 'storeTaxonomy']);
+            Route::get('/taxonomies/{slug}', [ContentTypeController::class, 'showTaxonomy']);
+            Route::put('/taxonomies/{slug}', [ContentTypeController::class, 'updateTaxonomy']);
+            Route::delete('/taxonomies/{slug}', [ContentTypeController::class, 'destroyTaxonomy']);
+        });
+
+        // ── Sprint 8: Custom Fields (ACF-style) ──────────────────
+        Route::prefix('field-groups')->middleware('can_do:manage_options')->group(function () {
+            Route::get('/', [CustomFieldController::class, 'index']);
+            Route::post('/', [CustomFieldController::class, 'store']);
+            Route::get('/{id}', [CustomFieldController::class, 'show']);
+            Route::put('/{id}', [CustomFieldController::class, 'update']);
+            Route::delete('/{id}', [CustomFieldController::class, 'destroy']);
+        });
+
+        // ── Sprint 8: Navigation Menus ───────────────────────────
+        Route::prefix('menus')->middleware('can_do:edit_theme_options')->group(function () {
+            Route::get('/', [MenuController::class, 'index']);
+            Route::post('/', [MenuController::class, 'store']);
+            Route::get('/{id}', [MenuController::class, 'show']);
+            Route::put('/{id}', [MenuController::class, 'update']);
+            Route::delete('/{id}', [MenuController::class, 'destroy']);
+            Route::post('/{id}/items', [MenuController::class, 'addItem']);
+            Route::put('/{id}/items/{itemId}', [MenuController::class, 'updateItem']);
+            Route::delete('/{id}/items/{itemId}', [MenuController::class, 'removeItem']);
+            Route::put('/{id}/locations', [MenuController::class, 'updateLocations']);
+        });
+
+        // ── Sprint 8: Tools ──────────────────────────────────────
+        Route::prefix('tools')->group(function () {
+            Route::post('/export', [ExportController::class, 'export'])
+                ->middleware('can_do:export');
+            Route::get('/site-health', SiteHealthController::class)
+                ->middleware('can_do:manage_options');
         });
     });
 });
