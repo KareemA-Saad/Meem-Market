@@ -17,10 +17,10 @@ class UpdateMediaRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => ['sometimes', 'string', 'max:255'],
-            'caption' => ['sometimes', 'string', 'max:5000'],
-            'alt_text' => ['sometimes', 'string', 'max:255'],
-            'description' => ['sometimes', 'string', 'max:10000'],
+            'title'       => ['sometimes', 'nullable', 'string', 'max:255'],
+            'caption'     => ['sometimes', 'nullable', 'string', 'max:5000'],
+            'alt_text'    => ['sometimes', 'nullable', 'string', 'max:500'],
+            'description' => ['sometimes', 'nullable', 'string', 'max:20000'],
         ];
     }
 }

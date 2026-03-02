@@ -3,10 +3,8 @@
 namespace App\Http\Requests\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
-/**
- * Validates bulk media actions (currently: delete).
- */
 class BulkMediaRequest extends FormRequest
 {
     public function authorize(): bool
@@ -17,8 +15,8 @@ class BulkMediaRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'action' => ['required', 'string', 'in:delete'],
-            'media_ids' => ['required', 'array', 'min:1'],
+            'action'      => ['required', Rule::in(['delete'])],
+            'media_ids'   => ['required', 'array', 'min:1'],
             'media_ids.*' => ['integer', 'exists:posts,id'],
         ];
     }

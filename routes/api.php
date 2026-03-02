@@ -202,6 +202,8 @@ Route::prefix('v1/admin')->group(function () {
                 ->middleware('can_do:upload_files');
             Route::delete('/{id}', [MediaController::class, 'destroy'])
                 ->middleware('can_do:upload_files');
+            Route::post('/{id}/edit', [MediaController::class, 'edit'])
+                ->middleware('can_do:upload_files');
         });
 
         // ── Sprint 7: Comment Management ─────────────────────────

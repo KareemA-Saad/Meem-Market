@@ -21,8 +21,9 @@ class UploadMediaRequest extends FormRequest
         $extensions = implode(',', MediaService::allowedExtensions());
 
         return [
-            'files' => ['required', 'array', 'min:1', 'max:20'],
-            'files.*' => ['required', 'file', "mimes:{$extensions}", 'max:51200'], // 50 MB per file
+            'files'       => ['required', 'array', 'min:1', 'max:20'],
+            'files.*'     => ['required', 'file', "mimes:{$extensions}", 'max:51200'], // 50 MB per file
+            'attached_to' => ['sometimes', 'nullable', 'integer', 'exists:posts,id'],
         ];
     }
 }

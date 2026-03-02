@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Http\Requests\Admin\BulkMediaRequest;
+use App\Http\Requests\Admin\EditMediaRequest;
 use App\Http\Requests\Admin\UpdateMediaRequest;
 use App\Http\Requests\Admin\UploadMediaRequest;
 use App\Http\Resources\V1\Admin\MediaResource;
@@ -10,6 +11,7 @@ use App\Models\Post;
 use App\Services\MediaService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use InvalidArgumentException;
 use OpenApi\Attributes as OA;
 
 /**
@@ -36,6 +38,7 @@ class MediaController extends ApiController
             new OA\Parameter(name: "type", in: "query", required: false, schema: new OA\Schema(type: "string", enum: ["image", "audio", "video", "document"])),
             new OA\Parameter(name: "month", in: "query", required: false, schema: new OA\Schema(type: "string", example: "2026-03")),
             new OA\Parameter(name: "search", in: "query", required: false, schema: new OA\Schema(type: "string")),
+            new OA\Parameter(name: "attached_to", in: "query", required: false, schema: new OA\Schema(type: "integer")),
             new OA\Parameter(name: "per_page", in: "query", required: false, schema: new OA\Schema(type: "integer", default: 20)),
             new OA\Parameter(name: "page", in: "query", required: false, schema: new OA\Schema(type: "integer", default: 1)),
         ],
@@ -47,8 +50,8 @@ class MediaController extends ApiController
     public function index(Request $request): JsonResponse
     {
         $query = Post::query()
-            ->with('meta')
             ->where('type', 'attachment')
+            ->with(['meta', 'author', 'parent'])
             ->orderByDesc('post_date');
 
         $this->applyFilters($query, $request);
@@ -73,6 +76,7 @@ class MediaController extends ApiController
                 schema: new OA\Schema(
                     properties: [
                         new OA\Property(property: "files[]", type: "array", items: new OA\Items(type: "string", format: "binary")),
+                        new OA\Property(property: "attached_to", type: "integer"),
                     ]
                 )
             )
@@ -84,17 +88,12 @@ class MediaController extends ApiController
     )]
     public function upload(UploadMediaRequest $request): JsonResponse
     {
-        $files = $request->file('files');
-        $authorId = $request->user()->id;
-        $uploaded = [];
+        $files = $request->file('files', []);
+        $attachedTo = $request->input('attached_to');
 
-        foreach ($files as $file) {
-            $attachment = $this->mediaService->upload($file, $authorId);
-            $attachment->load('meta');
-            $uploaded[] = new MediaResource($attachment);
-        }
+        $uploaded = $this->mediaService->upload($files, $request->user(), $attachedTo ? (int) $attachedTo : null);
 
-        return $this->success($uploaded, 201);
+        return $this->success(MediaResource::collection(collect($uploaded)), 201);
     }
 
     // ─── Show ────────────────────────────────────────────────────
@@ -115,15 +114,15 @@ class MediaController extends ApiController
     )]
     public function show(int $id): JsonResponse
     {
-        $attachment = Post::with('meta')
+        $media = Post::with(['meta', 'author', 'parent'])
             ->where('type', 'attachment')
             ->find($id);
 
-        if (!$attachment) {
+        if (!$media) {
             return $this->error('Media not found.', 404);
         }
 
-        return $this->success(new MediaResource($attachment));
+        return $this->success(new MediaResource($media));
     }
 
     // ─── Update Metadata ─────────────────────────────────────────
@@ -152,42 +151,15 @@ class MediaController extends ApiController
     )]
     public function update(UpdateMediaRequest $request, int $id): JsonResponse
     {
-        $attachment = Post::with('meta')
-            ->where('type', 'attachment')
-            ->find($id);
+        $media = Post::with('meta')->where('type', 'attachment')->find($id);
 
-        if (!$attachment) {
+        if (!$media) {
             return $this->error('Media not found.', 404);
         }
 
-        $validated = $request->validated();
+        $updated = $this->mediaService->updateAttachment($media, $request->validated());
 
-        // Post-level fields
-        if (isset($validated['title'])) {
-            $attachment->title = $validated['title'];
-        }
-        if (isset($validated['caption'])) {
-            $attachment->excerpt = $validated['caption'];
-        }
-        if (isset($validated['description'])) {
-            $attachment->content = $validated['description'];
-        }
-
-        $attachment->post_modified = now();
-        $attachment->post_modified_gmt = now()->utc();
-        $attachment->save();
-
-        // Alt text is stored in post_meta
-        if (isset($validated['alt_text'])) {
-            $attachment->meta()->updateOrCreate(
-                ['meta_key' => '_wp_attachment_image_alt'],
-                ['meta_value' => $validated['alt_text']],
-            );
-        }
-
-        $attachment->load('meta');
-
-        return $this->success(new MediaResource($attachment));
+        return $this->success(new MediaResource($updated));
     }
 
     // ─── Delete ──────────────────────────────────────────────────
@@ -208,15 +180,13 @@ class MediaController extends ApiController
     )]
     public function destroy(int $id): JsonResponse
     {
-        $attachment = Post::with('meta')
-            ->where('type', 'attachment')
-            ->find($id);
+        $media = Post::where('type', 'attachment')->find($id);
 
-        if (!$attachment) {
+        if (!$media) {
             return $this->error('Media not found.', 404);
         }
 
-        $this->mediaService->deleteAttachment($attachment);
+        $this->mediaService->deleteAttachment($media);
 
         return $this->success(['message' => 'Media deleted successfully.']);
     }
@@ -243,25 +213,49 @@ class MediaController extends ApiController
     public function bulk(BulkMediaRequest $request): JsonResponse
     {
         $validated = $request->validated();
-        $attachments = Post::with('meta')
-            ->where('type', 'attachment')
-            ->whereIn('id', $validated['media_ids'])
-            ->get();
+        $ids = $validated['media_ids'];
 
-        if ($attachments->isEmpty()) {
+        $items = Post::where('type', 'attachment')->whereIn('id', $ids)->get();
+
+        if ($items->isEmpty()) {
             return $this->error('No valid media items found.', 422);
         }
 
-        $affected = $attachments->count();
-
-        foreach ($attachments as $attachment) {
-            $this->mediaService->deleteAttachment($attachment);
+        $affected = 0;
+        foreach ($items as $media) {
+            $this->mediaService->deleteAttachment($media);
+            $affected++;
         }
 
         return $this->success([
-            'message' => "{$affected} media item(s) deleted.",
+            'message' => "{$affected} media item(s) deleted successfully.",
             'affected' => $affected,
         ]);
+    }
+
+    // ─── Edit (transform/crop/etc.) ──────────────────────────────
+
+    public function edit(EditMediaRequest $request, int $id): JsonResponse
+    {
+        $media = Post::with('meta')->where('type', 'attachment')->find($id);
+
+        if (!$media) {
+            return $this->error('Media not found.', 404);
+        }
+
+        $validated = $request->validated();
+
+        try {
+            $updated = $this->mediaService->editAttachment(
+                $media,
+                $validated['action'],
+                $validated['params'] ?? [],
+            );
+        } catch (InvalidArgumentException $e) {
+            return $this->error($e->getMessage(), 422);
+        }
+
+        return $this->success(new MediaResource($updated));
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -274,28 +268,44 @@ class MediaController extends ApiController
     private function applyFilters($query, Request $request): void
     {
         // MIME type category filter
-        if ($typeFilter = $request->query('type')) {
-            $mimePrefix = match ($typeFilter) {
-                'image' => 'image/',
-                'audio' => 'audio/',
-                'video' => 'video/',
-                'document' => 'application/',
-                default => null,
-            };
+        if ($type = $request->query('type')) {
+            $type = strtolower((string) $type);
 
-            if ($mimePrefix) {
-                $query->where('mime_type', 'LIKE', "{$mimePrefix}%");
+            if ($type === 'document') {
+                $query->where(function ($q) {
+                    $q->where('mime_type', 'NOT LIKE', 'image/%')
+                        ->where('mime_type', 'NOT LIKE', 'audio/%')
+                        ->where('mime_type', 'NOT LIKE', 'video/%');
+                });
+            } else {
+                $prefixes = ['image' => 'image/', 'audio' => 'audio/', 'video' => 'video/'];
+                if (isset($prefixes[$type])) {
+                    $query->where('mime_type', 'LIKE', $prefixes[$type] . '%');
+                }
             }
         }
 
         // Month filter (format: YYYY-MM)
         if ($month = $request->query('month')) {
-            $query->whereRaw("strftime('%Y-%m', post_date) = ?", [$month]);
+            $parts = explode('-', (string) $month);
+            if (count($parts) === 2) {
+                $query->whereYear('post_date', (int) $parts[0])
+                      ->whereMonth('post_date', (int) $parts[1]);
+            }
         }
 
-        // Search by title
+        // Full-text search across title and slug
         if ($search = $request->query('search')) {
-            $query->where('title', 'LIKE', "%{$search}%");
+            $search = (string) $search;
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'LIKE', "%{$search}%")
+                  ->orWhere('slug', 'LIKE', "%{$search}%");
+            });
+        }
+
+        // Filter by parent post
+        if ($request->filled('attached_to')) {
+            $query->where('parent_id', (int) $request->query('attached_to'));
         }
     }
 }
