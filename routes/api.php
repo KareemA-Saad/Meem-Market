@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\V1\Admin\AuthController;
 use App\Http\Controllers\Api\V1\Admin\DashboardController;
 use App\Http\Controllers\Api\V1\Admin\MediaController;
 use App\Http\Controllers\Api\V1\Admin\PostController;
+use App\Http\Controllers\Api\V1\Admin\SettingsController as AdminSettingsController;
 use App\Http\Controllers\Api\V1\Admin\TaxonomyController;
 use App\Http\Controllers\Api\V1\ContentController;
 use App\Http\Controllers\Api\V1\Admin\UserController;
@@ -196,6 +197,30 @@ Route::prefix('v1/admin')->group(function () {
                 ->middleware('can_do:delete_posts');
             Route::post('/{id}/edit', [MediaController::class, 'edit'])
                 ->middleware('can_do:upload_files');
+        });
+
+        // Settings (Sprint 7A)
+        Route::prefix('settings')->middleware('can_do:manage_options')->group(function () {
+            Route::get('/general', [AdminSettingsController::class, 'general']);
+            Route::put('/general', [AdminSettingsController::class, 'updateGeneral']);
+
+            Route::get('/writing', [AdminSettingsController::class, 'writing']);
+            Route::put('/writing', [AdminSettingsController::class, 'updateWriting']);
+
+            Route::get('/reading', [AdminSettingsController::class, 'reading']);
+            Route::put('/reading', [AdminSettingsController::class, 'updateReading']);
+
+            Route::get('/discussion', [AdminSettingsController::class, 'discussion']);
+            Route::put('/discussion', [AdminSettingsController::class, 'updateDiscussion']);
+
+            Route::get('/media', [AdminSettingsController::class, 'media']);
+            Route::put('/media', [AdminSettingsController::class, 'updateMedia']);
+
+            Route::get('/permalinks', [AdminSettingsController::class, 'permalinks']);
+            Route::put('/permalinks', [AdminSettingsController::class, 'updatePermalinks']);
+
+            Route::get('/privacy', [AdminSettingsController::class, 'privacy']);
+            Route::put('/privacy', [AdminSettingsController::class, 'updatePrivacy']);
         });
     });
 });
