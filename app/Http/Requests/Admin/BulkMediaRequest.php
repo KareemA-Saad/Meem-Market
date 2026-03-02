@@ -15,8 +15,8 @@ class BulkMediaRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'action' => ['required', Rule::in(['delete'])],
-            'media_ids' => ['required', 'array', 'min:1'],
+            'action'      => ['required', Rule::in(['delete'])],
+            'media_ids'   => ['required', 'array', 'min:1'],
             'media_ids.*' => ['integer', 'exists:posts,id'],
         ];
     }

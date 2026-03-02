@@ -10,13 +10,60 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
 
+/**
+ * Handles file upload, thumbnail generation, metadata management, and image
+ * editing for the Media Library.
+ *
+ * Media items are stored as `posts` with type='attachment'. File metadata is
+ * kept in `post_meta` (_wp_attached_file, _wp_attachment_metadata, etc.).
+ */
 class MediaService
 {
+    /**
+     * Allowed MIME type → extension map.
+     * Single source of truth for upload validation — see UploadMediaRequest.
+     */
+    private const ALLOWED_TYPES = [
+        'image/jpeg'                                                                 => 'jpg',
+        'image/png'                                                                  => 'png',
+        'image/gif'                                                                  => 'gif',
+        'image/webp'                                                                 => 'webp',
+        'image/svg+xml'                                                              => 'svg',
+        'application/pdf'                                                            => 'pdf',
+        'application/msword'                                                         => 'doc',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document'   => 'docx',
+        'application/vnd.ms-excel'                                                   => 'xls',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'         => 'xlsx',
+        'application/vnd.ms-powerpoint'                                              => 'ppt',
+        'application/vnd.openxmlformats-officedocument.presentationml.presentation' => 'pptx',
+        'video/mp4'                                                                  => 'mp4',
+        'audio/mpeg'                                                                 => 'mp3',
+        'audio/wav'                                                                  => 'wav',
+        'audio/ogg'                                                                  => 'ogg',
+        'application/zip'                                                            => 'zip',
+    ];
+
+    /**
+     * Default image size targets. Actual dimensions are read from options at
+     * runtime; these are used as fallbacks only.
+     */
+    private const IMAGE_SIZE_DEFAULTS = [
+        'thumbnail' => ['width' => 150,  'height' => 150,  'crop' => true],
+        'medium'    => ['width' => 300,  'height' => 300,  'crop' => false],
+        'large'     => ['width' => 1024, 'height' => 1024, 'crop' => false],
+    ];
+
     public function __construct(
         private readonly OptionService $optionService,
     ) {}
 
+    // ═══════════════════════════════════════════════════════════
+    //  Public API
+    // ═══════════════════════════════════════════════════════════
+
     /**
+     * Upload one or more files and create the corresponding attachment posts.
+     *
      * @param  array<int, UploadedFile>  $files
      * @return array<int, Post>
      */
@@ -31,21 +78,23 @@ class MediaService
         return $uploaded;
     }
 
+    /**
+     * Update the editable metadata fields of an attachment (title, caption,
+     * alt text, description).
+     */
     public function updateAttachment(Post $media, array $data): Post
     {
         $updates = [
-            'post_modified' => now(),
+            'post_modified'     => now(),
             'post_modified_gmt' => now('UTC'),
         ];
 
         if (array_key_exists('title', $data)) {
             $updates['title'] = $data['title'] ?? '';
         }
-
         if (array_key_exists('caption', $data)) {
             $updates['excerpt'] = $data['caption'] ?? '';
         }
-
         if (array_key_exists('description', $data)) {
             $updates['content'] = $data['description'] ?? '';
         }
@@ -62,6 +111,12 @@ class MediaService
         return $media->fresh(['meta', 'author', 'parent']);
     }
 
+    /**
+     * Apply a destructive image edit (crop / rotate / flip / scale) in-place,
+     * then regenerate thumbnails.
+     *
+     * @throws InvalidArgumentException
+     */
     public function editAttachment(Post $media, string $action, array $params): Post
     {
         $metaMap = $this->getMetaMap($media);
@@ -82,32 +137,20 @@ class MediaService
         }
 
         $image = $this->loadImage($absolutePath, $mimeType);
-
-        switch ($action) {
-            case 'crop':
-                $image = $this->applyCrop($image, $params);
-                break;
-            case 'rotate':
-                $image = $this->applyRotate($image, $params);
-                break;
-            case 'flip':
-                $image = $this->applyFlip($image, $params);
-                break;
-            case 'scale':
-                $image = $this->applyScale($image, $params);
-                break;
-            default:
-                throw new InvalidArgumentException('Unsupported edit action.');
-        }
+        $image = match ($action) {
+            'crop'   => $this->applyCrop($image, $params),
+            'rotate' => $this->applyRotate($image, $params),
+            'flip'   => $this->applyFlip($image, $params),
+            'scale'  => $this->applyScale($image, $params),
+            default  => throw new InvalidArgumentException('Unsupported edit action.'),
+        };
 
         $this->saveImage($image, $absolutePath, $mimeType);
         imagedestroy($image);
 
         $metadata = $this->buildAttachmentMetadata($relativePath, $mimeType);
         $this->cleanupGeneratedSizes($relativePath, $metaMap['_wp_attachment_metadata'] ?? null);
-        if (str_starts_with($mimeType, 'image/')) {
-            $metadata['sizes'] = $this->generateImageSizes($relativePath, $mimeType);
-        }
+        $metadata['sizes'] = $this->generateImageSizes($relativePath, $mimeType);
 
         PostMeta::updateOrCreate(
             ['post_id' => $media->id, 'meta_key' => '_wp_attachment_metadata'],
@@ -115,16 +158,19 @@ class MediaService
         );
 
         $media->update([
-            'post_modified' => now(),
+            'post_modified'     => now(),
             'post_modified_gmt' => now('UTC'),
         ]);
 
         return $media->fresh(['meta', 'author', 'parent']);
     }
 
+    /**
+     * Permanently delete an attachment: file + generated sizes + meta + post.
+     */
     public function deleteAttachment(Post $media): void
     {
-        $metaMap = $this->getMetaMap($media);
+        $metaMap      = $this->getMetaMap($media);
         $relativePath = $metaMap['_wp_attached_file'] ?? null;
         $metadataJson = $metaMap['_wp_attachment_metadata'] ?? null;
 
@@ -138,70 +184,95 @@ class MediaService
         $media->delete();
     }
 
+    /**
+     * Return the public URL for an attachment.
+     */
+    public function getUrl(Post $attachment): ?string
+    {
+        $filePath = $attachment->meta()
+            ->where('meta_key', '_wp_attached_file')
+            ->value('meta_value');
+
+        return $filePath ? Storage::disk('public')->url($filePath) : null;
+    }
+
+    /**
+     * Parse the stored JSON metadata for an attachment.
+     *
+     * @return array{width?: int, height?: int, filesize?: int, file?: string, sizes?: array}
+     */
+    public function getMetadata(Post $attachment): array
+    {
+        $raw = $attachment->meta()
+            ->where('meta_key', '_wp_attachment_metadata')
+            ->value('meta_value');
+
+        return $raw ? (json_decode($raw, true) ?: []) : [];
+    }
+
+    /**
+     * Return the list of allowed file extensions for upload validation.
+     *
+     * @return string[]  e.g. ['jpg', 'png', 'gif', …]
+     */
+    public static function allowedExtensions(): array
+    {
+        return array_values(self::ALLOWED_TYPES);
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    //  Upload Internals
+    // ═══════════════════════════════════════════════════════════
+
     private function uploadSingle(UploadedFile $file, User $user, ?int $attachedTo = null): Post
     {
-        $extension = strtolower($file->getClientOriginalExtension());
-        $baseName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-        $safeBase = Str::slug($baseName);
-        if ($safeBase === '') {
-            $safeBase = 'file-'.Str::lower(Str::ulid());
-        }
+        $sanitised  = $this->sanitiseFilename($file->getClientOriginalName());
+        $extension  = strtolower(pathinfo($sanitised, PATHINFO_EXTENSION));
+        $safeBase   = pathinfo($sanitised, PATHINFO_FILENAME);
 
-        $directory = $this->uploadDirectory();
-        $fileName = $this->uniqueFileName($directory, $safeBase, $extension);
-        $relativePath = trim($directory.'/'.$fileName, '/');
+        $directory    = $this->uploadDirectory();
+        $fileName     = $this->uniqueFileName($directory, $safeBase, $extension);
+        $relativePath = trim($directory . '/' . $fileName, '/');
 
         Storage::disk('public')->putFileAs($directory, $file, $fileName);
 
         $absolutePath = Storage::disk('public')->path($relativePath);
-        $mimeType = $file->getMimeType() ?: ($this->detectMimeType($absolutePath) ?? 'application/octet-stream');
-        $title = trim($baseName) !== '' ? $baseName : $fileName;
-        $now = now();
+        $mimeType     = $file->getMimeType() ?: ($this->detectMimeType($absolutePath) ?? 'application/octet-stream');
+        $title        = trim(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) ?: $fileName;
+        $now          = now();
 
         $post = Post::create([
-            'author_id' => $user->id,
-            'post_date' => $now,
-            'post_date_gmt' => now('UTC'),
-            'content' => '',
-            'title' => $title,
-            'excerpt' => '',
-            'status' => 'inherit',
-            'comment_status' => 'closed',
-            'ping_status' => 'closed',
-            'password' => '',
-            'slug' => $this->uniqueAttachmentSlug($safeBase),
-            'post_modified' => $now,
+            'author_id'         => $user->id,
+            'post_date'         => $now,
+            'post_date_gmt'     => now('UTC'),
+            'content'           => '',
+            'title'             => $title,
+            'excerpt'           => '',
+            'status'            => 'inherit',
+            'comment_status'    => 'closed',
+            'ping_status'       => 'closed',
+            'password'          => '',
+            'slug'              => $this->uniqueAttachmentSlug($safeBase),
+            'post_modified'     => $now,
             'post_modified_gmt' => now('UTC'),
-            'content_filtered' => '',
-            'parent_id' => $attachedTo ?? 0,
-            'guid' => Storage::disk('public')->url($relativePath),
-            'menu_order' => 0,
-            'type' => 'attachment',
-            'mime_type' => $mimeType,
-            'comment_count' => 0,
+            'content_filtered'  => '',
+            'parent_id'         => $attachedTo ?? 0,
+            'guid'              => Storage::disk('public')->url($relativePath),
+            'menu_order'        => 0,
+            'type'              => 'attachment',
+            'mime_type'         => $mimeType,
+            'comment_count'     => 0,
         ]);
 
         $metadata = $this->buildAttachmentMetadata($relativePath, $mimeType);
-        if (str_starts_with($mimeType, 'image/')) {
+        if (str_starts_with($mimeType, 'image/') && $mimeType !== 'image/svg+xml') {
             $metadata['sizes'] = $this->generateImageSizes($relativePath, $mimeType);
         }
 
-        PostMeta::create([
-            'post_id' => $post->id,
-            'meta_key' => '_wp_attached_file',
-            'meta_value' => $relativePath,
-        ]);
-
-        PostMeta::create([
-            'post_id' => $post->id,
-            'meta_key' => '_wp_attachment_metadata',
-            'meta_value' => json_encode($metadata),
-        ]);
-
-        PostMeta::create([
-            'post_id' => $post->id,
-            'meta_key' => '_wp_attachment_image_alt',
-            'meta_value' => '',
+        PostMeta::insert([
+            ['post_id' => $post->id, 'meta_key' => '_wp_attached_file',        'meta_value' => $relativePath],
+            ['post_id' => $post->id, 'meta_key' => '_wp_attachment_metadata',  'meta_value' => json_encode($metadata)],
+            ['post_id' => $post->id, 'meta_key' => '_wp_attachment_image_alt', 'meta_value' => ''],
         ]);
 
         return $post->fresh(['meta', 'author', 'parent']);
@@ -211,15 +282,15 @@ class MediaService
     {
         $absolutePath = Storage::disk('public')->path($relativePath);
         $metadata = [
-            'file' => $relativePath,
+            'file'     => $relativePath,
             'filesize' => is_file($absolutePath) ? (filesize($absolutePath) ?: 0) : 0,
-            'sizes' => [],
+            'sizes'    => [],
         ];
 
         if (str_starts_with($mimeType, 'image/') && $mimeType !== 'image/svg+xml') {
             $dimensions = @getimagesize($absolutePath);
             if ($dimensions !== false) {
-                $metadata['width'] = $dimensions[0];
+                $metadata['width']  = $dimensions[0];
                 $metadata['height'] = $dimensions[1];
             }
         }
@@ -227,14 +298,22 @@ class MediaService
         return $metadata;
     }
 
+    // ═══════════════════════════════════════════════════════════
+    //  Image Size Generation
+    // ═══════════════════════════════════════════════════════════
+
     /**
      * @return array<string, array<string, int|string>>
      */
     private function generateImageSizes(string $relativePath, string $mimeType): array
     {
-        $disk = Storage::disk('public');
+        if ($mimeType === 'image/svg+xml') {
+            return [];
+        }
+
+        $disk         = Storage::disk('public');
         $absolutePath = $disk->path($relativePath);
-        $dimensions = @getimagesize($absolutePath);
+        $dimensions   = @getimagesize($absolutePath);
 
         if ($dimensions === false) {
             return [];
@@ -242,24 +321,24 @@ class MediaService
 
         [$srcW, $srcH] = [$dimensions[0], $dimensions[1]];
         $pathInfo = pathinfo($relativePath);
-        $dir = trim($pathInfo['dirname'] ?? '', '.');
-        $base = $pathInfo['filename'];
-        $ext = strtolower($pathInfo['extension'] ?? 'jpg');
+        $dir      = trim($pathInfo['dirname'] ?? '', '.');
+        $base     = $pathInfo['filename'];
+        $ext      = strtolower($pathInfo['extension'] ?? 'jpg');
 
         $targets = [
             'thumbnail' => [
-                'w' => (int) ($this->optionService->get('thumbnail_size_w', 150) ?: 150),
-                'h' => (int) ($this->optionService->get('thumbnail_size_h', 150) ?: 150),
+                'w'    => (int) ($this->optionService->get('thumbnail_size_w', self::IMAGE_SIZE_DEFAULTS['thumbnail']['width']) ?: self::IMAGE_SIZE_DEFAULTS['thumbnail']['width']),
+                'h'    => (int) ($this->optionService->get('thumbnail_size_h', self::IMAGE_SIZE_DEFAULTS['thumbnail']['height']) ?: self::IMAGE_SIZE_DEFAULTS['thumbnail']['height']),
                 'crop' => $this->isTruthy($this->optionService->get('thumbnail_crop', '1')),
             ],
             'medium' => [
-                'w' => (int) ($this->optionService->get('medium_size_w', 300) ?: 300),
-                'h' => (int) ($this->optionService->get('medium_size_h', 300) ?: 300),
+                'w'    => (int) ($this->optionService->get('medium_size_w', self::IMAGE_SIZE_DEFAULTS['medium']['width']) ?: self::IMAGE_SIZE_DEFAULTS['medium']['width']),
+                'h'    => (int) ($this->optionService->get('medium_size_h', self::IMAGE_SIZE_DEFAULTS['medium']['height']) ?: self::IMAGE_SIZE_DEFAULTS['medium']['height']),
                 'crop' => false,
             ],
             'large' => [
-                'w' => (int) ($this->optionService->get('large_size_w', 1024) ?: 1024),
-                'h' => (int) ($this->optionService->get('large_size_h', 1024) ?: 1024),
+                'w'    => (int) ($this->optionService->get('large_size_w', self::IMAGE_SIZE_DEFAULTS['large']['width']) ?: self::IMAGE_SIZE_DEFAULTS['large']['width']),
+                'h'    => (int) ($this->optionService->get('large_size_h', self::IMAGE_SIZE_DEFAULTS['large']['height']) ?: self::IMAGE_SIZE_DEFAULTS['large']['height']),
                 'crop' => false,
             ],
         ];
@@ -275,8 +354,8 @@ class MediaService
                 continue;
             }
 
-            $newName = "{$base}-{$target['w']}x{$target['h']}.{$ext}";
-            $newRelativePath = trim(($dir !== '' ? $dir.'/' : '').$newName, '/');
+            $newName         = "{$base}-{$target['w']}x{$target['h']}.{$ext}";
+            $newRelativePath = trim(($dir !== '' ? $dir . '/' : '') . $newName, '/');
             $newAbsolutePath = $disk->path($newRelativePath);
 
             $processed = $this->createResizedImage(
@@ -293,9 +372,9 @@ class MediaService
             }
 
             $sizes[$sizeKey] = [
-                'file' => $newName,
-                'width' => $processed['width'],
-                'height' => $processed['height'],
+                'file'      => $newName,
+                'width'     => $processed['width'],
+                'height'    => $processed['height'],
                 'mime-type' => $mimeType,
             ];
         }
@@ -304,7 +383,7 @@ class MediaService
     }
 
     /**
-     * @return array{width:int,height:int}|null
+     * @return array{width: int, height: int}|null
      */
     private function createResizedImage(
         string $sourcePath,
@@ -315,34 +394,34 @@ class MediaService
         bool $crop
     ): ?array {
         $source = $this->loadImage($sourcePath, $mimeType);
-        $srcW = imagesx($source);
-        $srcH = imagesy($source);
+        $srcW   = imagesx($source);
+        $srcH   = imagesy($source);
 
         if ($crop) {
-            $srcRatio = $srcW / max($srcH, 1);
+            $srcRatio    = $srcW / max($srcH, 1);
             $targetRatio = $targetW / max($targetH, 1);
 
             if ($srcRatio > $targetRatio) {
                 $cropH = $srcH;
                 $cropW = (int) round($srcH * $targetRatio);
-                $srcX = (int) round(($srcW - $cropW) / 2);
-                $srcY = 0;
+                $srcX  = (int) round(($srcW - $cropW) / 2);
+                $srcY  = 0;
             } else {
                 $cropW = $srcW;
                 $cropH = (int) round($srcW / max($targetRatio, 0.00001));
-                $srcX = 0;
-                $srcY = (int) round(($srcH - $cropH) / 2);
+                $srcX  = 0;
+                $srcY  = (int) round(($srcH - $cropH) / 2);
             }
 
             $destW = $targetW;
             $destH = $targetH;
-            $dest = $this->blankCanvas($destW, $destH, $mimeType);
+            $dest  = $this->blankCanvas($destW, $destH, $mimeType);
             imagecopyresampled($dest, $source, 0, 0, $srcX, $srcY, $destW, $destH, $cropW, $cropH);
         } else {
             $ratio = min($targetW / max($srcW, 1), $targetH / max($srcH, 1), 1);
             $destW = max((int) round($srcW * $ratio), 1);
             $destH = max((int) round($srcH * $ratio), 1);
-            $dest = $this->blankCanvas($destW, $destH, $mimeType);
+            $dest  = $this->blankCanvas($destW, $destH, $mimeType);
             imagecopyresampled($dest, $source, 0, 0, 0, 0, $destW, $destH, $srcW, $srcH);
         }
 
@@ -355,101 +434,87 @@ class MediaService
         return ['width' => $destW, 'height' => $destH];
     }
 
-    private function uploadDirectory(): string
-    {
-        $yearMonth = $this->isTruthy($this->optionService->get('uploads_use_yearmonth_folders', '1'));
-        if (!$yearMonth) {
-            return 'uploads';
-        }
+    // ═══════════════════════════════════════════════════════════
+    //  Image Edit Operations
+    // ═══════════════════════════════════════════════════════════
 
-        return 'uploads/'.now()->format('Y').'/'.now()->format('m');
+    private function applyCrop($image, array $params)
+    {
+        $x      = max((int) ($params['x'] ?? 0), 0);
+        $y      = max((int) ($params['y'] ?? 0), 0);
+        $width  = max((int) ($params['width'] ?? 0), 1);
+        $height = max((int) ($params['height'] ?? 0), 1);
+
+        $srcW   = imagesx($image);
+        $srcH   = imagesy($image);
+        $width  = min($width, $srcW - $x);
+        $height = min($height, $srcH - $y);
+
+        $dest = $this->blankCanvas($width, $height, 'image/png');
+        imagecopyresampled($dest, $image, 0, 0, $x, $y, $width, $height, $width, $height);
+        imagedestroy($image);
+
+        return $dest;
     }
 
-    private function uniqueFileName(string $directory, string $baseName, string $extension): string
+    private function applyRotate($image, array $params)
     {
-        $disk = Storage::disk('public');
-        $counter = 0;
+        $angle   = (float) ($params['angle'] ?? 0);
+        $rotated = imagerotate($image, -$angle, 0);
+        imagedestroy($image);
 
-        do {
-            $suffix = $counter > 0 ? '-'.$counter : '';
-            $candidate = $baseName.$suffix.'.'.$extension;
-            $counter++;
-        } while ($disk->exists(trim($directory.'/'.$candidate, '/')));
-
-        return $candidate;
+        return $rotated;
     }
 
-    private function uniqueAttachmentSlug(string $base): string
+    private function applyFlip($image, array $params)
     {
-        $slug = $base;
-        $counter = 2;
+        $mode         = strtolower((string) ($params['mode'] ?? 'horizontal'));
+        $flipConstant = $mode === 'vertical' ? IMG_FLIP_VERTICAL : IMG_FLIP_HORIZONTAL;
 
-        while (Post::where('type', 'attachment')->where('slug', $slug)->exists()) {
-            $slug = $base.'-'.$counter;
-            $counter++;
-        }
+        imageflip($image, $flipConstant);
 
-        return $slug;
+        return $image;
     }
 
-    /**
-     * @return array<string, string>
-     */
-    private function getMetaMap(Post $media): array
+    private function applyScale($image, array $params)
     {
-        $rows = PostMeta::where('post_id', $media->id)->get(['meta_key', 'meta_value']);
-        $map = [];
-        foreach ($rows as $row) {
-            $map[$row->meta_key] = $row->meta_value;
+        $srcW    = imagesx($image);
+        $srcH    = imagesy($image);
+        $targetW = isset($params['width'])  ? (int) $params['width']  : null;
+        $targetH = isset($params['height']) ? (int) $params['height'] : null;
+
+        if (!$targetW && !$targetH) {
+            throw new InvalidArgumentException('Scale action requires width and/or height.');
         }
 
-        return $map;
+        if ($targetW && !$targetH) {
+            $targetH = (int) round($srcH * ($targetW / max($srcW, 1)));
+        } elseif (!$targetW && $targetH) {
+            $targetW = (int) round($srcW * ($targetH / max($srcH, 1)));
+        }
+
+        $targetW = max((int) $targetW, 1);
+        $targetH = max((int) $targetH, 1);
+
+        $scaled = $this->blankCanvas($targetW, $targetH, 'image/png');
+        imagecopyresampled($scaled, $image, 0, 0, 0, 0, $targetW, $targetH, $srcW, $srcH);
+        imagedestroy($image);
+
+        return $scaled;
     }
 
-    private function cleanupGeneratedSizes(?string $relativePath, ?string $metadataJson): void
-    {
-        if (!$relativePath || !$metadataJson) {
-            return;
-        }
-
-        $decoded = json_decode($metadataJson, true);
-        if (!is_array($decoded) || !isset($decoded['sizes']) || !is_array($decoded['sizes'])) {
-            return;
-        }
-
-        $dir = pathinfo($relativePath, PATHINFO_DIRNAME);
-        if ($dir === '.' || $dir === '') {
-            $dir = '';
-        }
-
-        foreach ($decoded['sizes'] as $size) {
-            if (!is_array($size) || empty($size['file'])) {
-                continue;
-            }
-
-            $sizePath = trim(($dir !== '' ? $dir.'/' : '').$size['file'], '/');
-            Storage::disk('public')->delete($sizePath);
-        }
-    }
-
-    private function detectMimeType(string $absolutePath): ?string
-    {
-        $mime = @mime_content_type($absolutePath);
-        if ($mime === false) {
-            return null;
-        }
-
-        return $mime;
-    }
+    // ═══════════════════════════════════════════════════════════
+    //  Low-level GD Helpers
+    // ═══════════════════════════════════════════════════════════
 
     private function loadImage(string $absolutePath, string $mimeType)
     {
         return match ($mimeType) {
             'image/jpeg', 'image/jpg' => imagecreatefromjpeg($absolutePath),
-            'image/png' => imagecreatefrompng($absolutePath),
-            'image/gif' => imagecreatefromgif($absolutePath),
-            'image/webp' => imagecreatefromwebp($absolutePath),
-            default => throw new InvalidArgumentException("Unsupported image mime type: {$mimeType}"),
+            'image/png'               => imagecreatefrompng($absolutePath),
+            'image/gif'               => imagecreatefromgif($absolutePath),
+            'image/webp'              => imagecreatefromwebp($absolutePath),
+            default => throw new InvalidArgumentException("Unsupported image MIME type: {$mimeType}"),
         };
     }
 
@@ -459,10 +524,10 @@ class MediaService
 
         match ($mimeType) {
             'image/jpeg', 'image/jpg' => imagejpeg($image, $absolutePath, 90),
-            'image/png' => imagepng($image, $absolutePath, 6),
-            'image/gif' => imagegif($image, $absolutePath),
-            'image/webp' => imagewebp($image, $absolutePath, 85),
-            default => throw new InvalidArgumentException("Unsupported image mime type: {$mimeType}"),
+            'image/png'               => imagepng($image, $absolutePath, 6),
+            'image/gif'               => imagegif($image, $absolutePath),
+            'image/webp'              => imagewebp($image, $absolutePath, 85),
+            default => throw new InvalidArgumentException("Unsupported image MIME type: {$mimeType}"),
         };
     }
 
@@ -480,107 +545,94 @@ class MediaService
         return $canvas;
     }
 
-    private function applyCrop($image, array $params)
+    // ═══════════════════════════════════════════════════════════
+    //  Filesystem / Naming Helpers
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Sanitise a filename: lowercase slug for the name, preserve extension.
+     */
+    private function sanitiseFilename(string $filename): string
     {
-        $x = max((int) ($params['x'] ?? 0), 0);
-        $y = max((int) ($params['y'] ?? 0), 0);
-        $width = max((int) ($params['width'] ?? 0), 1);
-        $height = max((int) ($params['height'] ?? 0), 1);
+        $name      = pathinfo($filename, PATHINFO_FILENAME);
+        $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+        $name      = Str::slug($name) ?: 'file';
 
-        $srcW = imagesx($image);
-        $srcH = imagesy($image);
-
-        $width = min($width, $srcW - $x);
-        $height = min($height, $srcH - $y);
-
-        $dest = imagecreatetruecolor($width, $height);
-        imagealphablending($dest, false);
-        imagesavealpha($dest, true);
-        $transparent = imagecolorallocatealpha($dest, 0, 0, 0, 127);
-        imagefilledrectangle($dest, 0, 0, $width, $height, $transparent);
-        imagecopyresampled($dest, $image, 0, 0, $x, $y, $width, $height, $width, $height);
-
-        imagedestroy($image);
-
-        return $dest;
+        return "{$name}.{$extension}";
     }
 
-    private function applyRotate($image, array $params)
+    private function uploadDirectory(): string
     {
-        $angle = (float) ($params['angle'] ?? 0);
-        $rotated = imagerotate($image, -$angle, 0);
+        $useYearMonth = $this->isTruthy($this->optionService->get('uploads_use_yearmonth_folders', '1'));
 
-        imagedestroy($image);
-
-        return $rotated;
+        return $useYearMonth
+            ? 'uploads/' . now()->format('Y') . '/' . now()->format('m')
+            : 'uploads';
     }
 
-    private function applyFlip($image, array $params)
+    private function uniqueFileName(string $directory, string $baseName, string $extension): string
     {
-        $mode = strtolower((string) ($params['mode'] ?? 'horizontal'));
-        $flipConstant = $mode === 'vertical' ? IMG_FLIP_VERTICAL : IMG_FLIP_HORIZONTAL;
+        $disk    = Storage::disk('public');
+        $counter = 0;
 
-        if (function_exists('imageflip')) {
-            imageflip($image, $flipConstant);
-            return $image;
+        do {
+            $suffix    = $counter > 0 ? '-' . $counter : '';
+            $candidate = $baseName . $suffix . '.' . $extension;
+            $counter++;
+        } while ($disk->exists(trim($directory . '/' . $candidate, '/')));
+
+        return $candidate;
+    }
+
+    private function uniqueAttachmentSlug(string $base): string
+    {
+        $slug    = $base;
+        $counter = 2;
+
+        while (Post::where('type', 'attachment')->where('slug', $slug)->exists()) {
+            $slug = $base . '-' . $counter++;
         }
 
-        $w = imagesx($image);
-        $h = imagesy($image);
-        $flipped = imagecreatetruecolor($w, $h);
-        imagealphablending($flipped, false);
-        imagesavealpha($flipped, true);
-        $transparent = imagecolorallocatealpha($flipped, 0, 0, 0, 127);
-        imagefilledrectangle($flipped, 0, 0, $w, $h, $transparent);
+        return $slug;
+    }
 
-        if ($flipConstant === IMG_FLIP_HORIZONTAL) {
-            for ($x = 0; $x < $w; $x++) {
-                imagecopy($flipped, $image, $w - $x - 1, 0, $x, 0, 1, $h);
+    private function getMetaMap(Post $media): array
+    {
+        return PostMeta::where('post_id', $media->id)
+            ->get(['meta_key', 'meta_value'])
+            ->pluck('meta_value', 'meta_key')
+            ->all();
+    }
+
+    private function cleanupGeneratedSizes(?string $relativePath, ?string $metadataJson): void
+    {
+        if (!$relativePath || !$metadataJson) {
+            return;
+        }
+
+        $decoded = json_decode($metadataJson, true);
+        if (!is_array($decoded) || empty($decoded['sizes'])) {
+            return;
+        }
+
+        $dir = pathinfo($relativePath, PATHINFO_DIRNAME);
+        $dir = ($dir === '.' || $dir === '') ? '' : $dir;
+
+        foreach ($decoded['sizes'] as $size) {
+            if (!is_array($size) || empty($size['file'])) {
+                continue;
             }
-        } else {
-            for ($y = 0; $y < $h; $y++) {
-                imagecopy($flipped, $image, 0, $h - $y - 1, 0, $y, $w, 1);
-            }
+
+            $sizePath = trim(($dir !== '' ? $dir . '/' : '') . $size['file'], '/');
+            Storage::disk('public')->delete($sizePath);
         }
-
-        imagedestroy($image);
-
-        return $flipped;
     }
 
-    private function applyScale($image, array $params)
+    private function detectMimeType(string $absolutePath): ?string
     {
-        $srcW = imagesx($image);
-        $srcH = imagesy($image);
+        $mime = @mime_content_type($absolutePath);
 
-        $targetW = isset($params['width']) ? (int) $params['width'] : null;
-        $targetH = isset($params['height']) ? (int) $params['height'] : null;
-
-        if (!$targetW && !$targetH) {
-            throw new InvalidArgumentException('Scale action requires width and/or height.');
-        }
-
-        if ($targetW && !$targetH) {
-            $ratio = $targetW / max($srcW, 1);
-            $targetH = (int) round($srcH * $ratio);
-        } elseif (!$targetW && $targetH) {
-            $ratio = $targetH / max($srcH, 1);
-            $targetW = (int) round($srcW * $ratio);
-        }
-
-        $targetW = max((int) $targetW, 1);
-        $targetH = max((int) $targetH, 1);
-
-        $scaled = imagecreatetruecolor($targetW, $targetH);
-        imagealphablending($scaled, false);
-        imagesavealpha($scaled, true);
-        $transparent = imagecolorallocatealpha($scaled, 0, 0, 0, 127);
-        imagefilledrectangle($scaled, 0, 0, $targetW, $targetH, $transparent);
-        imagecopyresampled($scaled, $image, 0, 0, 0, 0, $targetW, $targetH, $srcW, $srcH);
-
-        imagedestroy($image);
-
-        return $scaled;
+        return $mime !== false ? $mime : null;
     }
 
     private function ensureDirectory(string $absoluteDirectory): void
@@ -592,8 +644,6 @@ class MediaService
 
     private function isTruthy(mixed $value): bool
     {
-        $string = strtolower(trim((string) $value));
-
-        return in_array($string, ['1', 'true', 'yes', 'on'], true);
+        return in_array(strtolower(trim((string) $value)), ['1', 'true', 'yes', 'on'], true);
     }
 }

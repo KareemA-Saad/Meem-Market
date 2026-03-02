@@ -1,59 +1,122 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Meem-Market: Enterprise Headless CMS Engine
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+[![Laravel 12](https://img.shields.io/badge/Laravel-12.x-red.svg)](https://laravel.com)
+[![PHP 8.2](https://img.shields.io/badge/PHP-8.2+-blue.svg)](https://php.net)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
-## About Laravel
+## 🏛️ Project Architecture
+Meem-Market is a hybrid high-performance backend serving two primary functions:
+1. **Public Storefront API**: A lightweight, read-heavy API serving the public-facing website.
+2. **Headless CMS Admin**: A deep replication of industry-standard CMS administrative logic, built as a pure RESTful service with Laravel 12.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+```mermaid
+graph TD
+    FE[Frontend Application] --> Public[Public API]
+    Admin[Admin / Postman] --> Secret[Admin API]
+    Secret --> Auth[Auth & RBAC]
+    Public --> DB[(MySQL Database)]
+    Secret --> DB
+    Secret --> Storage[Media Storage]
+```
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+---
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## 🛠️ Technical Specification
 
-## Learning Laravel
+| Component | Implementation | Rationale |
+| :--- | :--- | :--- |
+| **Framework** | Laravel 12.x + PHP 8.2 | Modern syntax, promoted properties, and unmatched DX. |
+| **Authentication** | Laravel Sanctum | State-of-the-box token management for headless clients. |
+| **Authorization** | Capability-Based RBAC | Replicates standard CMS capabilities (e.g., `edit_posts`, `manage_options`). |
+| **Database** | CMS-Compatible Schema | Facilitates future migration and uses established logic patterns. |
+| **Documentation** | L5-Swagger (OpenAPI 3.0) | Auto-generated, interactive documentation via PHP Attributes. |
+| **Architecture** | Service-Layer Pattern | Decouples business logic (Options, Roles, Media) from Controllers. |
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+---
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## ✨ Core CMS Features
 
-## Laravel Sponsors
+### 1. Robust Content Engine
+*   **Post & Page CRUD**: Advanced content management with support for custom statuses (`publish`, `draft`, `trash`, `future`).
+*   **Revision System**: Automatic snapshots on every update, allowing for granular content restoration.
+*   **Smart Slugs**: Automatic, collision-resistant slug generation.
+*   **Meta System**: Extensible Metadata for all core entities (Posts, Users, Comments, Terms).
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### 2. Taxonomy & Relationships
+*   **Hierarchical Taxonomies**: Native support for Categories and nested Term structures.
+*   **Flat Taxonomies**: Optimized Tag management with automatic count recalculations.
+*   **Object Relationships**: Advanced `term_relationships` for many-to-many content linking.
 
-### Premium Partners
+### 3. Integrated Security & RBAC
+*   **Role Mapping**: Default roles (Admin, Editor, Author, etc.) with precise capability mapping.
+*   **Middleware Protection**: `CheckCapability` middleware for granular endpoint security.
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+---
 
-## Contributing
+## 📂 Project Structure
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```text
+app/
+├── Http/Controllers/Api/V1/
+│   ├── Admin/              # CMS Core Logic (Replicated Admin Logic)
+│   └── Public/             # Storefront Logic (Branches, Careers, etc.)
+├── Http/Middleware/        # CheckCapability.php (Capability-based Auth)
+├── Http/Resources/V1/Admin # Standardized JSON transformers
+├── Models/                 # Hybrid Schema (CMS Tables + Custom Models)
+├── Services/               # Domain-driven logic (OptionService, RoleService)
+└── Providers/              # ContentTypeServiceProvider (Dynamic routing)
+```
 
-## Code of Conduct
+---
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## 🚀 Getting Started
 
-## Security Vulnerabilities
+### Prerequisites
+*   **PHP 8.2+** (with `intl`, `bcmath`, `curl` extensions)
+*   **MySQL 8.0+**
+*   **Composer**
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### Installation
+1.  **Clone & Install**:
+    ```bash
+    git clone [repository-url]
+    composer install
+    ```
+2.  **Environment Configuration**:
+    Configure your `.env` with DB credentials and application keys.
+    ```bash
+    cp .env.example .env
+    php artisan key:generate
+    ```
+3.  **Database Provisioning**:
+    ```bash
+    php artisan migrate --seed
+    ```
+    *This initializes the `Administrator` user and the core `options` system.*
 
-## License
+---
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## 📡 API Usage & Documentation
+The API is fully documented via **Swagger**. To view the interactive documentation:
+
+1.  Start the development server: `php artisan serve`
+2.  Navigate to: `http://localhost:8000/api/documentation`
+
+### Common Endpoints
+*   `POST /v1/admin/auth/login` - Authenticate and receive token.
+*   `GET /v1/admin/posts` - List all posts.
+*   `GET /v1/admin/pages` - List all pages.
+
+---
+
+## 📜 Development Standards
+This project follows strict clean-code standards to ensure maintainability:
+*   **SOLID Principles**: Each class has a single responsibility.
+*   **Strict Typing**: Full use of PHP 8.2 type hinting.
+*   **Service Layer**: Business logic remains outside of controllers.
+*   **Fail Fast**: Immediate error reporting for invalid states.
+
+---
+
+## 📜 License
+Meem-Market is released under the [MIT License](https://opensource.org/licenses/MIT).

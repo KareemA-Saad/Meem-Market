@@ -16,6 +16,10 @@
         {
             "url": "http://localhost:8000",
             "description": "Demo API Server"
+        },
+        {
+            "url": "http://api.meem-market.com/",
+            "description": "Production Server"
         }
     ],
     "paths": {
@@ -504,6 +508,917 @@
                 ]
             }
         },
+        "/api/v1/admin/comments": {
+            "get": {
+                "tags": [
+                    "Admin Comments"
+                ],
+                "summary": "List comments (paginated with status counts)",
+                "operationId": "listComments",
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "approved",
+                                "pending",
+                                "spam",
+                                "trash"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "post_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 20
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Paginated comment list with status counts"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/comments/{id}": {
+            "get": {
+                "tags": [
+                    "Admin Comments"
+                ],
+                "summary": "Get a single comment",
+                "operationId": "showComment",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Comment details"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Admin Comments"
+                ],
+                "summary": "Edit a comment",
+                "operationId": "updateComment",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "author_name": {
+                                        "type": "string"
+                                    },
+                                    "author_email": {
+                                        "type": "string"
+                                    },
+                                    "author_url": {
+                                        "type": "string"
+                                    },
+                                    "content": {
+                                        "type": "string"
+                                    },
+                                    "status": {
+                                        "type": "string",
+                                        "enum": [
+                                            "0",
+                                            "1",
+                                            "spam",
+                                            "trash"
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Comment updated"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Admin Comments"
+                ],
+                "summary": "Permanently delete a comment",
+                "operationId": "deleteComment",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Deleted"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/comments/{id}/approve": {
+            "post": {
+                "tags": [
+                    "Admin Comments"
+                ],
+                "summary": "Approve a comment",
+                "operationId": "approveComment",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Approved"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/comments/{id}/unapprove": {
+            "post": {
+                "tags": [
+                    "Admin Comments"
+                ],
+                "summary": "Mark comment as pending",
+                "operationId": "unapproveComment",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Unapproved"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/comments/{id}/spam": {
+            "post": {
+                "tags": [
+                    "Admin Comments"
+                ],
+                "summary": "Mark comment as spam",
+                "operationId": "spamComment",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Marked as spam"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/comments/{id}/trash": {
+            "post": {
+                "tags": [
+                    "Admin Comments"
+                ],
+                "summary": "Move comment to trash",
+                "operationId": "trashComment",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Trashed"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/comments/{id}/restore": {
+            "post": {
+                "tags": [
+                    "Admin Comments"
+                ],
+                "summary": "Restore comment from trash",
+                "operationId": "restoreComment",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Restored"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/comments/{id}/reply": {
+            "post": {
+                "tags": [
+                    "Admin Comments"
+                ],
+                "summary": "Reply to a comment as the authenticated user",
+                "operationId": "replyComment",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "content"
+                                ],
+                                "properties": {
+                                    "content": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Reply created"
+                    },
+                    "404": {
+                        "description": "Parent comment not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/comments/bulk": {
+            "post": {
+                "tags": [
+                    "Admin Comments"
+                ],
+                "summary": "Bulk comment moderation",
+                "operationId": "bulkCommentAction",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "action",
+                                    "comment_ids"
+                                ],
+                                "properties": {
+                                    "action": {
+                                        "type": "string",
+                                        "enum": [
+                                            "approve",
+                                            "unapprove",
+                                            "spam",
+                                            "trash",
+                                            "delete"
+                                        ]
+                                    },
+                                    "comment_ids": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Bulk action completed"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/content-types/post-types": {
+            "get": {
+                "tags": [
+                    "Admin Content Types"
+                ],
+                "summary": "List all custom post types",
+                "operationId": "listPostTypes",
+                "responses": {
+                    "200": {
+                        "description": "List of custom post types"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Admin Content Types"
+                ],
+                "summary": "Register a custom post type",
+                "operationId": "createPostType",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AdminContentType"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/content-types/post-types/{slug}": {
+            "get": {
+                "tags": [
+                    "Admin Content Types"
+                ],
+                "summary": "Get a custom post type",
+                "operationId": "showPostType",
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Post type details"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Admin Content Types"
+                ],
+                "summary": "Update a custom post type",
+                "operationId": "updatePostType",
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AdminContentType"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Updated"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Admin Content Types"
+                ],
+                "summary": "Delete a custom post type",
+                "operationId": "deletePostType",
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Deleted"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/content-types/taxonomies": {
+            "get": {
+                "tags": [
+                    "Admin Content Types"
+                ],
+                "summary": "List all custom taxonomy definitions",
+                "operationId": "listCustomTaxonomies",
+                "responses": {
+                    "200": {
+                        "description": "List of custom taxonomies"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Admin Content Types"
+                ],
+                "summary": "Register a custom taxonomy",
+                "operationId": "createCustomTaxonomy",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AdminContentType"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/content-types/taxonomies/{slug}": {
+            "get": {
+                "tags": [
+                    "Admin Content Types"
+                ],
+                "summary": "Get a custom taxonomy definition",
+                "operationId": "showCustomTaxonomy",
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Taxonomy details"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Admin Content Types"
+                ],
+                "summary": "Update a custom taxonomy",
+                "operationId": "updateCustomTaxonomy",
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AdminContentType"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Updated"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Admin Content Types"
+                ],
+                "summary": "Delete a custom taxonomy",
+                "operationId": "deleteCustomTaxonomy",
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Deleted"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/field-groups": {
+            "get": {
+                "tags": [
+                    "Admin Custom Fields"
+                ],
+                "summary": "List all field groups",
+                "operationId": "listFieldGroups",
+                "responses": {
+                    "200": {
+                        "description": "Field group list"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Admin Custom Fields"
+                ],
+                "summary": "Create a field group with fields",
+                "operationId": "createFieldGroup",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AdminFieldGroup"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/field-groups/{id}": {
+            "get": {
+                "tags": [
+                    "Admin Custom Fields"
+                ],
+                "summary": "Get a field group with its fields",
+                "operationId": "showFieldGroup",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Field group details"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Admin Custom Fields"
+                ],
+                "summary": "Update a field group and its fields",
+                "operationId": "updateFieldGroup",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AdminFieldGroup"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Updated"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Admin Custom Fields"
+                ],
+                "summary": "Delete a field group and its fields",
+                "operationId": "deleteFieldGroup",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Deleted"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
         "/api/v1/admin/dashboard/stats": {
             "get": {
                 "tags": [
@@ -641,6 +1556,681 @@
                     },
                     "422": {
                         "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/tools/export": {
+            "post": {
+                "tags": [
+                    "Admin Tools"
+                ],
+                "summary": "Export CMS content as JSON",
+                "operationId": "exportContent",
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "type": {
+                                        "type": "string",
+                                        "example": "post"
+                                    },
+                                    "category": {
+                                        "type": "integer"
+                                    },
+                                    "author": {
+                                        "type": "integer"
+                                    },
+                                    "start_date": {
+                                        "type": "string",
+                                        "format": "date"
+                                    },
+                                    "end_date": {
+                                        "type": "string",
+                                        "format": "date"
+                                    },
+                                    "status": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Exported JSON"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/media": {
+            "get": {
+                "tags": [
+                    "Admin Media"
+                ],
+                "summary": "List media items (paginated)",
+                "operationId": "listMedia",
+                "parameters": [
+                    {
+                        "name": "type",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "image",
+                                "audio",
+                                "video",
+                                "document"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "month",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "2026-03"
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 20
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Paginated media list"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/media/upload": {
+            "post": {
+                "tags": [
+                    "Admin Media"
+                ],
+                "summary": "Upload one or more files",
+                "operationId": "uploadMedia",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "files[]": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "format": "binary"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Files uploaded"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/media/{id}": {
+            "get": {
+                "tags": [
+                    "Admin Media"
+                ],
+                "summary": "Get a single media item",
+                "operationId": "showMedia",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Media details"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Admin Media"
+                ],
+                "summary": "Update media metadata",
+                "operationId": "updateMedia",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "title": {
+                                        "type": "string"
+                                    },
+                                    "caption": {
+                                        "type": "string"
+                                    },
+                                    "alt_text": {
+                                        "type": "string"
+                                    },
+                                    "description": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Media updated"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Admin Media"
+                ],
+                "summary": "Permanently delete a media item",
+                "operationId": "deleteMedia",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Deleted"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/media/bulk": {
+            "post": {
+                "tags": [
+                    "Admin Media"
+                ],
+                "summary": "Bulk delete media items",
+                "operationId": "bulkMediaAction",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "action",
+                                    "media_ids"
+                                ],
+                                "properties": {
+                                    "action": {
+                                        "type": "string",
+                                        "enum": [
+                                            "delete"
+                                        ]
+                                    },
+                                    "media_ids": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Bulk action completed"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/menus": {
+            "get": {
+                "tags": [
+                    "Admin Menus"
+                ],
+                "summary": "List all navigation menus",
+                "operationId": "listMenus",
+                "responses": {
+                    "200": {
+                        "description": "Menu list"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Admin Menus"
+                ],
+                "summary": "Create a navigation menu",
+                "operationId": "createMenu",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "description": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/menus/{id}": {
+            "get": {
+                "tags": [
+                    "Admin Menus"
+                ],
+                "summary": "Get a menu with its items",
+                "operationId": "showMenu",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Menu with items"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Admin Menus"
+                ],
+                "summary": "Update menu name/description",
+                "operationId": "updateMenu",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "description": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Updated"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Admin Menus"
+                ],
+                "summary": "Delete a menu and its items",
+                "operationId": "deleteMenu",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Deleted"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/menus/{id}/items": {
+            "post": {
+                "tags": [
+                    "Admin Menus"
+                ],
+                "summary": "Add an item to a menu",
+                "operationId": "addMenuItem",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AdminMenuItem"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Item added"
+                    },
+                    "404": {
+                        "description": "Menu not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/menus/{id}/items/{itemId}": {
+            "put": {
+                "tags": [
+                    "Admin Menus"
+                ],
+                "summary": "Update a menu item",
+                "operationId": "updateMenuItem",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "itemId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AdminMenuItem"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Updated"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Admin Menus"
+                ],
+                "summary": "Remove a menu item",
+                "operationId": "deleteMenuItem",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "itemId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Removed"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/menus/{id}/locations": {
+            "put": {
+                "tags": [
+                    "Admin Menus"
+                ],
+                "summary": "Assign menu to theme locations",
+                "operationId": "assignMenuLocations",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "header": {
+                                        "type": "integer",
+                                        "nullable": true
+                                    },
+                                    "footer": {
+                                        "type": "integer",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Locations updated"
                     }
                 },
                 "security": [
@@ -1261,6 +2851,123 @@
                     },
                     "404": {
                         "description": "Post or revision not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/settings/{section}": {
+            "get": {
+                "tags": [
+                    "Admin Settings"
+                ],
+                "summary": "Get settings for a section",
+                "description": "Returns all options for the specified section as key-value pairs.",
+                "operationId": "getSettings",
+                "parameters": [
+                    {
+                        "name": "section",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "general",
+                                "writing",
+                                "reading",
+                                "discussion",
+                                "media",
+                                "permalinks",
+                                "privacy"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Settings object"
+                    },
+                    "404": {
+                        "description": "Unknown section"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Admin Settings"
+                ],
+                "summary": "Update settings for a section",
+                "description": "Updates one or more options within the specified section.",
+                "operationId": "updateSettings",
+                "parameters": [
+                    {
+                        "name": "section",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "general",
+                                "writing",
+                                "reading",
+                                "discussion",
+                                "media",
+                                "permalinks",
+                                "privacy"
+                            ]
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "description": "Key-value pairs from the section's option list",
+                                "additionalProperties": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Settings updated"
+                    },
+                    "404": {
+                        "description": "Unknown section"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/tools/site-health": {
+            "get": {
+                "tags": [
+                    "Admin Tools"
+                ],
+                "summary": "Get site health diagnostics",
+                "operationId": "siteHealth",
+                "responses": {
+                    "200": {
+                        "description": "System tests and info"
                     }
                 },
                 "security": [
@@ -2558,6 +4265,35 @@
                 }
             }
         },
+        "/api/v1/offers/{id}": {
+            "get": {
+                "tags": [
+                    "Offers"
+                ],
+                "summary": "Get a single offer by ID",
+                "description": "Returns a single active offer with its category and branch",
+                "operationId": "getOfferById",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Offer ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    },
+                    "404": {
+                        "description": "Offer not found"
+                    }
+                }
+            }
+        },
         "/api/v1/settings/{group}": {
             "get": {
                 "tags": [
@@ -2590,6 +4326,282 @@
     },
     "components": {
         "schemas": {
+            "AdminComment": {
+                "properties": {
+                    "id": {
+                        "description": "JSON representation of a comment for admin moderation.",
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "post_id": {
+                        "type": "integer",
+                        "example": 42
+                    },
+                    "post_title": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "author_name": {
+                        "type": "string",
+                        "example": "John Doe"
+                    },
+                    "author_email": {
+                        "type": "string",
+                        "example": "john@example.com"
+                    },
+                    "author_url": {
+                        "type": "string"
+                    },
+                    "content": {
+                        "type": "string"
+                    },
+                    "approved": {
+                        "type": "string",
+                        "enum": [
+                            "0",
+                            "1",
+                            "spam",
+                            "trash"
+                        ]
+                    },
+                    "type": {
+                        "type": "string"
+                    },
+                    "parent_id": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "user_id": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "comment_date": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "AdminContentType": {
+                "properties": {
+                    "slug": {
+                        "description": "JSON representation of a custom post type or taxonomy definition.",
+                        "type": "string",
+                        "example": "product"
+                    },
+                    "label": {
+                        "type": "string",
+                        "example": "Products"
+                    },
+                    "singular_label": {
+                        "type": "string",
+                        "example": "Product"
+                    },
+                    "public": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "hierarchical": {
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "has_archive": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "supports": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "taxonomies": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "menu_icon": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "menu_position": {
+                        "type": "integer",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "AdminFieldGroup": {
+                "properties": {
+                    "id": {
+                        "description": "JSON representation of an ACF-style field group with its child fields.",
+                        "type": "integer"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "publish",
+                            "draft"
+                        ]
+                    },
+                    "position": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "style": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "label_placement": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "location_rules": {
+                        "type": "array",
+                        "items": {
+                            "type": "object"
+                        }
+                    },
+                    "fields": {
+                        "type": "array",
+                        "items": {
+                            "type": "object"
+                        }
+                    },
+                    "menu_order": {
+                        "type": "integer"
+                    }
+                },
+                "type": "object"
+            },
+            "AdminMedia": {
+                "properties": {
+                    "id": {
+                        "description": "JSON representation of an attachment (media item).",
+                        "type": "integer",
+                        "example": 10
+                    },
+                    "title": {
+                        "type": "string",
+                        "example": "company-logo"
+                    },
+                    "slug": {
+                        "type": "string",
+                        "example": "company-logo"
+                    },
+                    "mime_type": {
+                        "type": "string",
+                        "example": "image/png"
+                    },
+                    "url": {
+                        "type": "string",
+                        "example": "https://example.com/storage/uploads/2026/03/company-logo.png"
+                    },
+                    "alt_text": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "caption": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "width": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "height": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "filesize": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "author_id": {
+                        "type": "integer"
+                    },
+                    "uploaded_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "AdminMenuItem": {
+                "properties": {
+                    "id": {
+                        "description": "JSON representation of a single menu item (nav_menu_item post).",
+                        "type": "integer"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "url": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "description": "custom, post_type, taxonomy",
+                        "type": "string"
+                    },
+                    "object_id": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "parent_item_id": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "position": {
+                        "type": "integer"
+                    },
+                    "target": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "css_classes": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "children": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/AdminMenuItem"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "AdminMenu": {
+                "properties": {
+                    "id": {
+                        "description": "JSON representation of a navigation menu with its items as a tree.",
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "slug": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/AdminMenuItem"
+                        }
+                    }
+                },
+                "type": "object"
+            },
             "AdminPost": {
                 "properties": {
                     "id": {
@@ -2908,12 +4920,40 @@
             "description": "Authentication endpoints for the admin CMS layer"
         },
         {
+            "name": "Admin Comments",
+            "description": "Comment moderation and management"
+        },
+        {
+            "name": "Admin Content Types",
+            "description": "Custom Post Type and Taxonomy definition CRUD"
+        },
+        {
+            "name": "Admin Custom Fields",
+            "description": "ACF-style field group and field CRUD"
+        },
+        {
             "name": "Admin Dashboard",
             "description": "Dashboard statistics and quick actions"
         },
         {
+            "name": "Admin Tools",
+            "description": "Export, import, and site health tools"
+        },
+        {
+            "name": "Admin Media",
+            "description": "Media Library upload, CRUD, and bulk operations"
+        },
+        {
+            "name": "Admin Menus",
+            "description": "Navigation menu and menu item CRUD"
+        },
+        {
             "name": "Admin Posts",
             "description": "Post & Page CRUD, revisions, trash, bulk operations"
+        },
+        {
+            "name": "Admin Settings",
+            "description": "CMS settings management (general, writing, reading, discussion, media, permalinks, privacy)"
         },
         {
             "name": "Admin Taxonomies",

@@ -48,4 +48,31 @@ class OfferController extends Controller
 
         return OfferResource::collection($offers);
     }
+
+    #[OA\Get(
+        path: "/api/v1/offers/{id}",
+        operationId: "getOfferById",
+        tags: ["Offers"],
+        summary: "Get a single offer by ID",
+        description: "Returns a single active offer with its category and branch",
+        parameters: [
+            new OA\Parameter(name: "id", description: "Offer ID", required: true, in: "path", schema: new OA\Schema(type: "integer")),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: "Successful operation"),
+            new OA\Response(response: 404, description: "Offer not found"),
+        ]
+    )]
+    public function show(int $id): OfferResource|JsonResponse
+    {
+        $offer = Offer::with(['offerCategory.branch'])
+            ->active()
+            ->find($id);
+
+        if (!$offer) {
+            return response()->json(['message' => 'Offer not found'], 404);
+        }
+
+        return new OfferResource($offer);
+    }
 }

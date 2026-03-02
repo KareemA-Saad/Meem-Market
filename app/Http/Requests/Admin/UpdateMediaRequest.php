@@ -4,6 +4,9 @@ namespace App\Http\Requests\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
 
+/**
+ * Validates media metadata updates (title, caption, alt text, description).
+ */
 class UpdateMediaRequest extends FormRequest
 {
     public function authorize(): bool
@@ -14,9 +17,9 @@ class UpdateMediaRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => ['sometimes', 'nullable', 'string', 'max:255'],
-            'caption' => ['sometimes', 'nullable', 'string', 'max:5000'],
-            'alt_text' => ['sometimes', 'nullable', 'string', 'max:500'],
+            'title'       => ['sometimes', 'nullable', 'string', 'max:255'],
+            'caption'     => ['sometimes', 'nullable', 'string', 'max:5000'],
+            'alt_text'    => ['sometimes', 'nullable', 'string', 'max:500'],
             'description' => ['sometimes', 'nullable', 'string', 'max:20000'],
         ];
     }

@@ -15,6 +15,10 @@ use OpenApi\Attributes as OA;
     url: "http://localhost:8000",
     description: "Demo API Server"
 )]
+#[OA\Server(
+    url: "http://api.meem-market.com/",
+    description: "Production Server"
+)]
 #[OA\SecurityScheme(
     securityScheme: "sanctum",
     type: "http",
