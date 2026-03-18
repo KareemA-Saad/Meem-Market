@@ -1,0 +1,514 @@
+{
+  "createdAt": "2026-02-18T09:47:17.940Z",
+  "files": {
+    "authentication/context.md": {
+      "hash": "499b05253c82d0d94f91a62acf19f830bf20dc037a6f1ffa2af6ee7d64933a34",
+      "size": 287
+    },
+    "appointments/context.md": {
+      "hash": "eb71a825883afc07a33c5e751c7458572fba38ed865e0f6833318c80b72d7d75",
+      "size": 285
+    },
+    "code_style/context.md": {
+      "hash": "c176db712cb2a2fdabd42444fbf8d72508acd94c52c7d94b71fb6ea2ac16472f",
+      "size": 283
+    },
+    "compliance/context.md": {
+      "hash": "5c51412b5f6902e81bcf109919764eb1a46cc305721a3da330cee981dc7481d2",
+      "size": 283
+    },
+    "ecommerce/context.md": {
+      "hash": "6e747e67422a933bd165e4bfe6dd3a521bc08a3765172da2d080401e3c74307a",
+      "size": 282
+    },
+    "email_management/context.md": {
+      "hash": "0b5ec17d8f6b51bcc0e9591a4b744cbd6e8e0edc15bb5f7c419c611535801c8c",
+      "size": 289
+    },
+    "hotel_booking/context.md": {
+      "hash": "64acb12f1bdda35f695a3da5d4d45521e066d72a9c0b27e3754dcb1efeba605f",
+      "size": 286
+    },
+    "knowledgebase/context.md": {
+      "hash": "dd301fff48c641dcdd384add05c1f3d56f97118f93754bfd8e39048160675a10",
+      "size": 286
+    },
+    "marketing/context.md": {
+      "hash": "1e990a4e838f436c97982c4fb4c2361f4770a1bab092d89725d99f7db50b42bd",
+      "size": 282
+    },
+    "portfolio/context.md": {
+      "hash": "a6276fc4b02ceb5f1002ee96715a9a11f9a7923a17d7766b53550051e0b93ff0",
+      "size": 282
+    },
+    "real_estate/context.md": {
+      "hash": "b9dfe603fc28026a079eacf8a3e0a34c3736244b90c25d001fb698202e0505cd",
+      "size": 284
+    },
+    "services/context.md": {
+      "hash": "95cc38e15b34527438f77149d66421c80bfd851646c2d2d6a2507acdf7eed7a6",
+      "size": 281
+    },
+    "structure/context.md": {
+      "hash": "db1b45bb7bb6cefb2e8f6a940e8c56391ef26e6db49b29aaaa52661ca7cabc74",
+      "size": 282
+    },
+    "tenancy/context.md": {
+      "hash": "cf50d51f90c0ecbc5a5eb4daf5fff8fb42786cfdd3dd9a4853e6535fc85133af",
+      "size": 280
+    },
+    "testing/context.md": {
+      "hash": "deb1a4b8b00c19dc19afb1f4b2f980b726dedba780aec94bf73420628510fbe8",
+      "size": 280
+    },
+    "wallet/context.md": {
+      "hash": "13cac9ab717c8e465789377b8158fa825f834e844b1590d6e4837183e3fa6ccf",
+      "size": 279
+    },
+    "authentication/two_factor_auth/implementation_status_and_gaps.md": {
+      "hash": "d8d35ec0d9783c0ae6fb5c0b2e2ce533210ec2cf306e9b1fb53d31f60e4e00d1",
+      "size": 637
+    },
+    "authentication/jwt/jwt_authentication.md": {
+      "hash": "61efaef9dc8cb7ce940547dd78d0f85458b9bcf50c466a63a3dbc4cd2dfb05b9",
+      "size": 66
+    },
+    "appointments/admin_management/admin_booking_management.md": {
+      "hash": "15116a0f8ec17e9aac767f68f31c9ac81a3780fef3a53f24637614bb2f0d2f83",
+      "size": 1334
+    },
+    "appointments/booking_system/booking_system_implementation.md": {
+      "hash": "ccc3c0476f2fde5a1ba531ebc6185d85c13c199d16f73d81ff4b5205891c155b",
+      "size": 1375
+    },
+    "appointments/api_routes/api_route_structure.md": {
+      "hash": "3ab4215d62c146230d0a532533ee98873be44d46146df001bf127b6f45de2ef7",
+      "size": 1157
+    },
+    "appointments/module_overview/appointment_module_overview.md": {
+      "hash": "cf22d5323d5d7ea63e89cfef17879dbe456a55b12a80ec23001ca94d6efe0d58",
+      "size": 1510
+    },
+    "code_style/backend_standards/backend_architecture_and_coding_standards.md": {
+      "hash": "6e1d7738ca8e65dc165705aad5fa409079f706f410e1ad9f9ae3aa936f7adf59",
+      "size": 1231
+    },
+    "compliance/security/audit_trail_and_request_logging_gap.md": {
+      "hash": "b87489b6bc535a29a3caf49f4086ac9c94442dd049db60d04ba2f87b1c5b334e",
+      "size": 1055
+    },
+    "compliance/security/context.md": {
+      "hash": "6f4f1aff806bf23d8d1a3d9c3ab55f7d7d55279766a96faa7f0fd3a9f9228146",
+      "size": 158
+    },
+    "compliance/security/consistent_api_error_handling.md": {
+      "hash": "cc9bf301f09e798dc8f6cc1ac06e68119e5b9809ae5fa964f15076dd2f237432",
+      "size": 1316
+    },
+    "compliance/security/context_md.md": {
+      "hash": "b5fdc183658ddcd0e3c5de7409ca7fae7716e4f30f67db5f7fe4e36dd8bfc741",
+      "size": 932
+    },
+    "compliance/security/input_sanitization_gap.md": {
+      "hash": "403d9b2dd0620eeb61298d9cecb8e8d6d9bcc2ea2d3e146968d46e741ea40ef9",
+      "size": 874
+    },
+    "compliance/security/input_sanitization_strategy.md": {
+      "hash": "763b6e6b7a6ccf8053e89503a3ad9f8a89dd733a2cf5f710037b4bf4b15daa8e",
+      "size": 1460
+    },
+    "compliance/security/rate_limiting_implementation.md": {
+      "hash": "4d88f52cfe2d2054a558972840012148f7fa2c55104b3312e77e42708e3d3cb6",
+      "size": 1133
+    },
+    "compliance/security/rate_limiting_security_hardening.md": {
+      "hash": "fdc6f241731304f2d0a40cac3c9f41ac54009333fb2c5637d9def7d76bad2276",
+      "size": 844
+    },
+    "compliance/validation/context.md": {
+      "hash": "010a41944ac7fd28e67ca6068909e78f8f6e7f46f5fdeee3f90c84d3311e7dd0",
+      "size": 371
+    },
+    "compliance/validation/phase_7_business_logic_validation_status.md": {
+      "hash": "da156e2dac37ddb824a90244aaf24454408d4ca89d9a52b3ea8c65e3220d565b",
+      "size": 786
+    },
+    "ecommerce/payment_gateway/context.md": {
+      "hash": "ab06fa773f8f759a634a753cc589724d9a497697c59337bf3fe6fe4849fa839d",
+      "size": 165
+    },
+    "ecommerce/coupon_management/implementation_status_and_gaps.md": {
+      "hash": "a30dbf9619c01a373715deb173157cb6ca250fa053817fe260daed8c4870c665",
+      "size": 595
+    },
+    "ecommerce/payment_gateway/implementation_status_and_gaps.md": {
+      "hash": "39861f6b4090b7bbef95772b73c76c7e47dff3d87cf032ca1944907c13b96658",
+      "size": 980
+    },
+    "email_management/email_template/implementation_status_and_gaps.md": {
+      "hash": "868888a5f84f134ac0311b6f392a581506baef087e451f2d81af5fa00f793b52",
+      "size": 622
+    },
+    "hotel_booking/api_routes/hotel_booking_api_routes.md": {
+      "hash": "bde35e1af4f5bd3b08034c6e968c9e0939ba9a071d0f118572282578ce34eaea",
+      "size": 2133
+    },
+    "hotel_booking/module_overview/hotel_booking_module_overview.md": {
+      "hash": "be3b32b709ed1d6276a13049d72cd58f8b90922ce421c06c3fc11348a3b530ba",
+      "size": 972
+    },
+    "hotel_booking/service_providers/hotel_booking_service_provider.md": {
+      "hash": "472e45e94ef7b0ae58ea7129ae6729df9d7be32cfd638e5f41541061b62c9390",
+      "size": 1032
+    },
+    "knowledgebase/implementation_status/implementation_status_and_gaps.md": {
+      "hash": "b48190b37a8fbdc8c28f9335600843b12f7feb8cd3f113359d6f4aa3f9c1c4f5",
+      "size": 658
+    },
+    "marketing/newsletter/implementation_status_and_gaps.md": {
+      "hash": "0303c35fcdb1a9bc629cd2dd4fb279a8bfabdc591f67379d410980d47559f525",
+      "size": 539
+    },
+    "portfolio/implementation_status/implementation_status_and_gaps.md": {
+      "hash": "fd857310263bedfc6a77e01cc538ee9cf0dd8b0a99aab1e1bcec508454ca1540",
+      "size": 642
+    },
+    "real_estate/api_documentation/phase_3_swagger_documentation.md": {
+      "hash": "5f0ae19f8ce3e02c2307f3f4c108b213354483846e15e98fc93c40c3a5234e75",
+      "size": 2435
+    },
+    "real_estate/api_documentation/context.md": {
+      "hash": "5663d367c9cd6883fba350ad733a135965c2c47907180a892114fa6620f315d1",
+      "size": 375
+    },
+    "real_estate/api_implementation/context.md": {
+      "hash": "c83bc85eaf73f7d84f8fadcdf9f2b8251ade2353e44b6139080b85839f5cc6db",
+      "size": 332
+    },
+    "real_estate/api_implementation/phase_2_controllers_and_api_endpoints.md": {
+      "hash": "47c8af1c476e657c18af368f18fd0d5bd0cdd32d16226e9422e50a5662a0dec1",
+      "size": 3059
+    },
+    "real_estate/api_routes/context.md": {
+      "hash": "e7060e3194edc7e547b645067fa9dbbdab719687fc17fe0c773cd2c3cc698960",
+      "size": 339
+    },
+    "real_estate/architecture/context.md": {
+      "hash": "4807762ecdd098ffa553773ba97a032da652b0d1a6685ea5aec655148af5debc",
+      "size": 342
+    },
+    "real_estate/architecture/real_estate_module_architecture.md": {
+      "hash": "6a5043a733898a334ac61d2d0fb8682e039a98fa30a0361c2230b53bb7191aa8",
+      "size": 2692
+    },
+    "real_estate/foundation/context.md": {
+      "hash": "3d6dcb313b139772c5bded1cbe2a3fac6d01ecd1f4508e17f95b0637562c7729",
+      "size": 314
+    },
+    "real_estate/foundation/phase_1_foundation_overview.md": {
+      "hash": "2b99d3667b89907ea177de13fb8d76396ba93fd471ad578e381b7d770af13bbc",
+      "size": 1419
+    },
+    "real_estate/geospatial_features/context.md": {
+      "hash": "43dc696dc049d82b6eab79b07fd49c48b6c1768920aa5ed05612ecc60156ceda",
+      "size": 381
+    },
+    "real_estate/geospatial_features/phase_6_geo_spatial_features.md": {
+      "hash": "3b946f5abadb33043eefc0395e16a0673f8e3c000e09f56c613f665ec1b52e32",
+      "size": 3063
+    },
+    "real_estate/lead_management/context.md": {
+      "hash": "66d361edd1c56257ea4d8881e33ae98dd124b5da99df422731e43b88a76e0ca9",
+      "size": 354
+    },
+    "real_estate/lead_management/phase_4_lead_management_notifications.md": {
+      "hash": "410251919121f859de746abcfc003fdb62aa4b9c47fa107e7468d75c7de3c832",
+      "size": 3299
+    },
+    "real_estate/media_management/phase_5_media_management.md": {
+      "hash": "31e2b6f5ff82982ef662ac9791905261c09a6ed135e146709d96b3462647fcb4",
+      "size": 2939
+    },
+    "services/service_module/implementation_status_and_gaps.md": {
+      "hash": "4b1e3fe5df555d2ca9605218cece1c9e6325334fc73a8575cdc2b3423455b569",
+      "size": 789
+    },
+    "structure/project_overview/architecture_and_implementation_status.md": {
+      "hash": "57484d41e425d1b2bae3043405d77a44227faf321368b7df2857c30ac816adf3",
+      "size": 827
+    },
+    "structure/project_overview/context.md": {
+      "hash": "a9ba7b4a8a5cf6817b608fe5b8e0b3c86141a8ea53051358a0995d61f1f16a18",
+      "size": 166
+    },
+    "tenancy/architecture/architecture_overview.md": {
+      "hash": "42b0e9651cc0e81ca0d737b766f20b01f8e264be0237eab15cd944e663bae37d",
+      "size": 1291
+    },
+    "tenancy/architecture/core_concepts_and_limits.md": {
+      "hash": "9d4499ebd2673e77e693c988b668a36bdd22f77a923a2add89182c20f0156a3b",
+      "size": 1321
+    },
+    "tenancy/database_config/database_and_redis_configuration.md": {
+      "hash": "1a708acb7aded66e7f21ad9821f2be7d10817f57960fc736cb5c8f75df4967cd",
+      "size": 1128
+    },
+    "tenancy/plan_structure/plan_feature_structure_and_limits.md": {
+      "hash": "c73a94125f9243e880dc3bcbe28e4a1790b9d7efaefe53f4bff9595030a50ea8",
+      "size": 1316
+    },
+    "tenancy/price_plans/price_plan_structure_and_features.md": {
+      "hash": "eb49f68791b9bb2d4c0f7cd440258dd70cf0ead439dacbece6fb8f252b19422c",
+      "size": 1572
+    },
+    "tenancy/module_development/creating_new_module.md": {
+      "hash": "3703296247aedcc4005996a70d30918f1bf00caa953761d0ee6eccd0f6ed2dad",
+      "size": 1455
+    },
+    "tenancy/module_development/creating_new_modules.md": {
+      "hash": "aa91e5202c905bb44738fa26e691765b819837d4d1610b8aa315cacf25302ae8",
+      "size": 1277
+    },
+    "tenancy/roadmap/implementation_plan_missing_features.md": {
+      "hash": "53cf9703f4a66664732bbde76a5b1b5b7770473ea1e41f7bd1cf3c7e5581e0ae",
+      "size": 1470
+    },
+    "tenancy/public_discovery/public_tenant_discovery_plan.md": {
+      "hash": "d24ee6c24c80656543176c13fa4bb767ab14aa95e17e493888fa5aecb0484bf4",
+      "size": 905
+    },
+    "tenancy/subscription_enforcement/subscription_enforcement_and_suspension.md": {
+      "hash": "02a424cb45186b8f6a3d7a832c96199314ea3ef91595c068d8fe9b0233a1b09f",
+      "size": 1256
+    },
+    "tenancy/subscription_flow/subscription_initiation_flow.md": {
+      "hash": "bfc373f026072df1f6a96dbed55c192b1625454c6464032bc55b84f5e43bc1f6",
+      "size": 1680
+    },
+    "tenancy/tenant_creation_flow/tenant_creation_flow.md": {
+      "hash": "a7ff28c6d7feb1d4cf90507ab3acbc6068a1f2f350597f485bb81fe95d935f08",
+      "size": 1091
+    },
+    "tenancy/tenant_creation_flow/tenant_creation_validation.md": {
+      "hash": "40dec4fb785ca19b835f0ca4382bf99f3e01889b1eb3a7982ad7787857f955ca",
+      "size": 945
+    },
+    "tenancy/tenant_discovery/tenant_discovery_and_access_control.md": {
+      "hash": "79330428ed7450169730e73bd0d44fbcd55ba410ad754589d1354269a69514ef",
+      "size": 1100
+    },
+    "tenancy/tenant_service/tenant_service_implementation.md": {
+      "hash": "1ca80715f151d7ad30e650fda8adc03060938abb4b04a598af53b5a083bc5366",
+      "size": 1750
+    },
+    "tenancy/usage_limits_enforcement/usage_limits_and_resource_enforcement.md": {
+      "hash": "fd52235dca3c79df5bf2f02d8083724f1041b3c432219118c87c0f91a19fdb66",
+      "size": 1273
+    },
+    "testing/coverage/context.md": {
+      "hash": "74180d337e76a5ef563e898fe45bbe1300b2d69deec1c2bba32ec1e73a10a29e",
+      "size": 158
+    },
+    "testing/coverage/test_coverage_gap.md": {
+      "hash": "c88ac33b16321c78da7f93f4e686f39356843b7fe394573040095aa6c764d092",
+      "size": 798
+    },
+    "testing/coverage/implementation_status_and_gaps.md": {
+      "hash": "c8678d2ce572a1dd0d18078375bcf5df786101989f826e6848dc79925cece2e9",
+      "size": 818
+    },
+    "testing/local_environment/manual_subscription_bypass.md": {
+      "hash": "ed38897d8fa17e0dc579dec56901ec0490ff12ccc5d4a05f70cc759de0b906d8",
+      "size": 1003
+    },
+    "wallet/implementation_status/wallet_implementation_status_and_gaps.md": {
+      "hash": "c3a1f2be456efa29ccdf4ca14ca7d1778f705f182154602ab11465cb206b4004",
+      "size": 1770
+    },
+    "compliance/validation/real_estate_request_validation_md/context.md": {
+      "hash": "278fec428c5d7607b7bd556880c8ccfdaf2d96f0a04dfe57f167714761b94e29",
+      "size": 118
+    },
+    "compliance/validation/real_estate_request_validation_md/real_estate_request_validation.md": {
+      "hash": "dc5f20b0eb4ad513e65dcbc890c2844286076eb6ab67c2d82a5f2bea0997bb71",
+      "size": 1866
+    },
+    "real_estate/api_documentation/global_search_api_endpoint/global_search_api_endpoint_reference.md": {
+      "hash": "35c5cafba2bbc31a292577c8f14e565bf4ee5f6f90a910703ac1ccf3c6a97bad",
+      "size": 2060
+    },
+    "real_estate/api_documentation/swagger_documentation_md/context.md": {
+      "hash": "8be1f36cb0593cf837e60502f4b905696fbd01b1e742e03f4b62ba7b8199b37c",
+      "size": 109
+    },
+    "real_estate/api_documentation/swagger_documentation_md/swagger_documentation.md": {
+      "hash": "ea62673eec4725fd274cddeb8f1168a2b903e225f684670aa7899b2a8c46f4cc",
+      "size": 1691
+    },
+    "real_estate/api_documentation/global_search_api_endpoint/context.md": {
+      "hash": "86bdc30797342b47a176ef804fdc27f14961a44ba250955a6f9f7e44ad0562c0",
+      "size": 111
+    },
+    "real_estate/api_implementation/api_resources_and_transformers_md/context.md": {
+      "hash": "73c3606113201419efedea6ed9cf9ce20fd47ab35cd4e2d10f75e5dee98931cb",
+      "size": 118
+    },
+    "real_estate/api_implementation/api_resources_and_transformers_md/real_estate_api_resources_and_transformers.md": {
+      "hash": "8944bb060a5fd37568ace55afde59abe866daf1ea793fbbb8b3cc684fd8031fe",
+      "size": 1880
+    },
+    "real_estate/api_implementation/global_search_frontend_integration/context.md": {
+      "hash": "e250d5e3334bbf90c3a369c7d6f4c01db2b7afea2b7ab11954271bb0b70c539d",
+      "size": 119
+    },
+    "real_estate/api_implementation/global_search_feature/context.md": {
+      "hash": "fe3053dae8c1499ddaad95fd1e9e9f00390a51b01b91506df8a7bbf6c0e0550a",
+      "size": 106
+    },
+    "real_estate/api_implementation/global_search_frontend_integration/global_search_frontend_integration_patterns.md": {
+      "hash": "491c4b88ea43a922ce6a98cdf10d05bc43fa3d4b50f14f9b6d91aacf3d1920ba",
+      "size": 1288
+    },
+    "real_estate/api_implementation/global_search_feature/global_search_feature_implementation.md": {
+      "hash": "079ded8436d029fb4f2017c3b60a2e31125bb05cdd60f29c54714baa68dc0882",
+      "size": 2010
+    },
+    "real_estate/api_implementation/global_search_transformer/context.md": {
+      "hash": "ff35fb987bc6c531e0aa46dea622c70aa8bd4c1cc477e4aac367b0c82718bd7c",
+      "size": 110
+    },
+    "real_estate/api_implementation/global_search_transformer/global_search_response_transformer.md": {
+      "hash": "5eb2d9c7e3a38b80078ef9b83489471f3649c9bf65b9d12c23e92b79ec7fd130",
+      "size": 1459
+    },
+    "real_estate/api_implementation/roles_and_capabilities_md/context.md": {
+      "hash": "86ff3782fbc8f4ad108d1ca28b745ef019c80138a59743221c74505e2ad6940c",
+      "size": 110
+    },
+    "real_estate/api_implementation/roles_and_capabilities_md/real_estate_roles_and_capabilities.md": {
+      "hash": "8a463987599b15d21f34033d35a873924273dd3cf4ee234a43bb95b90c1e0a94",
+      "size": 1658
+    },
+    "real_estate/api_routes/real_estate_api_structure_md/context.md": {
+      "hash": "b03e6a752ab4bd0381984740860f014d03cd603a88b93320bca5d4030a0fd52d",
+      "size": 113
+    },
+    "real_estate/api_routes/real_estate_api_structure_md/real_estate_api_structure.md": {
+      "hash": "04336b58b41793e6c35800e783d4145eb789a8137ce9cf2d928e0af7f4232288",
+      "size": 1292
+    },
+    "real_estate/architecture/area_service_implementation_md/area_service_implementation.md": {
+      "hash": "3321d10f762e9fdc4df5f1a742bd327726f7a84dea8b9679d940afeaf1f8442a",
+      "size": 810
+    },
+    "real_estate/architecture/area_service_implementation_md/context.md": {
+      "hash": "1b31dcb9f61c1fb8008040cb686e2dd2da873c7729038e0173a96bd0c62933ab",
+      "size": 115
+    },
+    "real_estate/architecture/compound_service_implementation_md/compound_service_implementation.md": {
+      "hash": "f39afac2b7bdd70ed5956bbb449cf92bbdbf190ef18ccc5a67bdb99ae8843151",
+      "size": 868
+    },
+    "real_estate/architecture/compound_service_implementation_md/context.md": {
+      "hash": "1810aca945b3130b33ccb9702917071da72043038bb0ee54c3718c3fedbad14b",
+      "size": 119
+    },
+    "real_estate/architecture/domain_models_md/context.md": {
+      "hash": "d600d2809b89f07e97107fc7627a9acfd45599dc78f2d7f8dfc59b4512787a8e",
+      "size": 101
+    },
+    "real_estate/architecture/domain_models_md/real_estate_domain_models.md": {
+      "hash": "23ea000750a9a9c2352f7e1624b3836ea06982b0924d80e0ddf7c26e9fc6db51",
+      "size": 1858
+    },
+    "real_estate/architecture/global_search_filter_logic/context.md": {
+      "hash": "8cfe9c54c91f8323c7c2f584e61772803efc11f08cc8c9a44acd3946555388d5",
+      "size": 111
+    },
+    "real_estate/architecture/global_search_filter_logic/global_search_filter_application_logic.md": {
+      "hash": "6e35fa21c23fd6440bdca3645b67ab747d07904c3da633f214979459ac9c8c2b",
+      "size": 1392
+    },
+    "real_estate/architecture/global_search_service_implementation/context.md": {
+      "hash": "5e4e39874c3beed310dc76c9fff54378c08c54fbd1cb9bc2d9167253470566d6",
+      "size": 121
+    },
+    "real_estate/architecture/global_search_service_implementation/global_search_service_implementation.md": {
+      "hash": "7a4c3a4459ccd227761a03ff36bdfe5970268cd87a2e78ea9146e6e46ef137d6",
+      "size": 1440
+    },
+    "real_estate/architecture/inquiry_service_implementation_md/context.md": {
+      "hash": "ff259e3c54cdb8a608901c3b48ae26a49d427d08d4e257d403849c324ffecc28",
+      "size": 118
+    },
+    "real_estate/architecture/property_service_implementation_md/context.md": {
+      "hash": "07a5ba1f7c3e09b8a5626a11a3b5781d2b7b0500a1172a1a83b9a1a804919c56",
+      "size": 119
+    },
+    "real_estate/architecture/inquiry_service_implementation_md/inquiry_service_implementation.md": {
+      "hash": "8bfae3e6db1f6ec430331a79cbab90d6d88959b0f130a63d39756f3a49c89087",
+      "size": 1032
+    },
+    "real_estate/architecture/property_service_implementation_md/property_service_implementation.md": {
+      "hash": "728fda91947f23ea884e6a24f210a792af919219b2c4e41177375c303807f607",
+      "size": 1030
+    },
+    "real_estate/architecture/real_estate_module_configuration_md/context.md": {
+      "hash": "31baff3064c5a86db8981d68befd5da14c3bea3cb562b211580b39b731a96479",
+      "size": 120
+    },
+    "real_estate/architecture/search_service_implementation_md/context.md": {
+      "hash": "440938cee0f35cb9b0c88882e509f88e3f84bab77e0393e15b084e787cadd02c",
+      "size": 117
+    },
+    "real_estate/architecture/real_estate_module_configuration_md/real_estate_module_configuration.md": {
+      "hash": "3c3abceb80812681b22cc49b70336432221525eb254b1bfa1b59740071296ef6",
+      "size": 1309
+    },
+    "real_estate/architecture/search_service_implementation_md/search_service_implementation.md": {
+      "hash": "66fe67aecb105453a5c7fca91a21793595dc682b10bf55fa6dba96196f163039",
+      "size": 998
+    },
+    "real_estate/architecture/supporting_entities_md/context.md": {
+      "hash": "ca666d53d4ae20844308788d9ebd6f4889a9a1c29f42782d5d13ef218529e445",
+      "size": 107
+    },
+    "real_estate/architecture/supporting_entities_md/supporting_real_estate_entities.md": {
+      "hash": "7ea57b169da376c6c5d1d7522232e3391ec8c94a9253c340daf782680d6b8bd6",
+      "size": 1351
+    },
+    "real_estate/foundation/database_schema_md/context.md": {
+      "hash": "459b59ac2436386032bfe05d615788449afc935da75d80d8d9ba00350d392c46",
+      "size": 103
+    },
+    "real_estate/foundation/phase_1_foundation_overview_md/context.md": {
+      "hash": "79855d920b69a5044df6d19cd3c62bd4f1f7d98851c2e995a30a17c8b70fad4f",
+      "size": 115
+    },
+    "real_estate/foundation/database_schema_md/real_estate_database_schema.md": {
+      "hash": "a40152fc957e770a6f834355cbc1272b6523ebbadf1a8188245a721860606c31",
+      "size": 1682
+    },
+    "real_estate/foundation/phase_1_foundation_overview_md/foundation_overview.md": {
+      "hash": "82216c889dfdc5c1c8c61a62014292fb401c0656b4e2c5646c4e66bd5758018d",
+      "size": 1991
+    },
+    "real_estate/geospatial_features/phase_6_geo_spatial_features_md/context.md": {
+      "hash": "d40ce19412e9c2500cbaca10d4051e14929c1250679ed3379f72506976796ead",
+      "size": 116
+    },
+    "real_estate/geospatial_features/phase_6_geo_spatial_features_md/geo_spatial_features_and_schema_extensions.md": {
+      "hash": "93fb7aa5cb3ba87dd8119c6515e04aeace9d6e313c34bf6a3407fcd5fd235c7e",
+      "size": 2051
+    },
+    "real_estate/lead_management/inquiry_communications_md/context.md": {
+      "hash": "4f670011c00f6735012282a450f422679047ae0000a1ec6a6e8badfbfc436522",
+      "size": 110
+    },
+    "real_estate/lead_management/inquiry_communications_md/inquiry_communications_and_notifications.md": {
+      "hash": "25ee12f23b9a5528f8b1ca69e984e02665ee608a8898e847f4e33bdb5f4cadd5",
+      "size": 1127
+    }
+  },
+  "version": 1
+}
