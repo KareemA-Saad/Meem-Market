@@ -6,6 +6,8 @@ use App\Http\Controllers\Api\V1\Admin\CommentController;
 use App\Http\Controllers\Api\V1\Admin\ContentTypeController;
 use App\Http\Controllers\Api\V1\Admin\CustomFieldController;
 use App\Http\Controllers\Api\V1\Admin\DashboardController;
+use App\Http\Controllers\Api\V1\Admin\BranchAdminController;
+use App\Http\Controllers\Api\V1\Admin\CountryAdminController;
 use App\Http\Controllers\Api\V1\Admin\ExportController;
 use App\Http\Controllers\Api\V1\Admin\MediaController;
 use App\Http\Controllers\Api\V1\Admin\MenuController;
@@ -100,6 +102,28 @@ Route::prefix('v1/admin')->group(function () {
             Route::post('/{id}', [OfferAdminController::class, 'update']);
             Route::put('/{id}', [OfferAdminController::class, 'update']);
             Route::delete('/{id}', [OfferAdminController::class, 'destroy']);
+        });
+
+        // Sprint 3: Countries
+        Route::prefix('countries')->middleware('can_do:manage_options')->group(function () {
+            Route::get('/', [CountryAdminController::class, 'index']);
+            Route::post('/', [CountryAdminController::class, 'store']);
+            Route::post('/bulk', [CountryAdminController::class, 'bulk']);
+            Route::put('/reorder', [CountryAdminController::class, 'reorder']);
+            Route::get('/{id}', [CountryAdminController::class, 'show']);
+            Route::put('/{id}', [CountryAdminController::class, 'update']);
+            Route::delete('/{id}', [CountryAdminController::class, 'destroy']);
+        });
+
+        // Sprint 3: Branches
+        Route::prefix('branches')->middleware('can_do:manage_options')->group(function () {
+            Route::get('/', [BranchAdminController::class, 'index']);
+            Route::post('/', [BranchAdminController::class, 'store']);
+            Route::post('/bulk', [BranchAdminController::class, 'bulk']);
+            Route::put('/reorder', [BranchAdminController::class, 'reorder']);
+            Route::get('/{id}', [BranchAdminController::class, 'show']);
+            Route::put('/{id}', [BranchAdminController::class, 'update']);
+            Route::delete('/{id}', [BranchAdminController::class, 'destroy']);
         });
 
         // User Management
