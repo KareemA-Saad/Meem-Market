@@ -2262,6 +2262,163 @@
                 ]
             }
         },
+        "/api/v1/admin/homepage/features": {
+            "get": {
+                "tags": [
+                    "Admin Homepage Features"
+                ],
+                "summary": "List homepage features",
+                "operationId": "adminHomepageFeaturesIndex",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Admin Homepage Features"
+                ],
+                "summary": "Create homepage feature",
+                "operationId": "adminHomepageFeaturesStore",
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/homepage/features/{id}": {
+            "get": {
+                "tags": [
+                    "Admin Homepage Features"
+                ],
+                "summary": "Show homepage feature",
+                "operationId": "adminHomepageFeaturesShow",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Admin Homepage Features"
+                ],
+                "summary": "Update homepage feature",
+                "operationId": "adminHomepageFeaturesUpdate",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Updated"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Admin Homepage Features"
+                ],
+                "summary": "Delete homepage feature",
+                "operationId": "adminHomepageFeaturesDestroy",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Deleted"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/homepage/features/bulk": {
+            "post": {
+                "tags": [
+                    "Admin Homepage Features"
+                ],
+                "summary": "Bulk action for homepage features",
+                "operationId": "adminHomepageFeaturesBulk",
+                "responses": {
+                    "200": {
+                        "description": "Bulk processed"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/homepage/features/reorder": {
+            "put": {
+                "tags": [
+                    "Admin Homepage Features"
+                ],
+                "summary": "Reorder homepage features",
+                "operationId": "adminHomepageFeaturesReorder",
+                "responses": {
+                    "200": {
+                        "description": "Reordered"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
         "/api/v1/admin/contact-messages": {
             "get": {
                 "tags": [
@@ -3906,6 +4063,44 @@
                 "responses": {
                     "200": {
                         "description": "Exported JSON"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/homepage/overview": {
+            "get": {
+                "tags": [
+                    "Admin Homepage"
+                ],
+                "summary": "Get homepage overview",
+                "operationId": "adminHomepageOverview",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/homepage/preview": {
+            "get": {
+                "tags": [
+                    "Admin Homepage"
+                ],
+                "summary": "Get homepage preview payload",
+                "operationId": "adminHomepagePreview",
+                "responses": {
+                    "200": {
+                        "description": "Success"
                     }
                 },
                 "security": [
@@ -5959,6 +6154,163 @@
                 ]
             }
         },
+        "/api/v1/admin/homepage/partners": {
+            "get": {
+                "tags": [
+                    "Admin Homepage Partners"
+                ],
+                "summary": "List homepage partners",
+                "operationId": "adminHomepagePartnersIndex",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Admin Homepage Partners"
+                ],
+                "summary": "Create homepage partner",
+                "operationId": "adminHomepagePartnersStore",
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/homepage/partners/{id}": {
+            "get": {
+                "tags": [
+                    "Admin Homepage Partners"
+                ],
+                "summary": "Show homepage partner",
+                "operationId": "adminHomepagePartnersShow",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Admin Homepage Partners"
+                ],
+                "summary": "Update homepage partner",
+                "operationId": "adminHomepagePartnersUpdate",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Updated"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Admin Homepage Partners"
+                ],
+                "summary": "Delete homepage partner",
+                "operationId": "adminHomepagePartnersDestroy",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Deleted"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/homepage/partners/bulk": {
+            "post": {
+                "tags": [
+                    "Admin Homepage Partners"
+                ],
+                "summary": "Bulk action for homepage partners",
+                "operationId": "adminHomepagePartnersBulk",
+                "responses": {
+                    "200": {
+                        "description": "Bulk processed"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/homepage/partners/reorder": {
+            "put": {
+                "tags": [
+                    "Admin Homepage Partners"
+                ],
+                "summary": "Reorder homepage partners",
+                "operationId": "adminHomepagePartnersReorder",
+                "responses": {
+                    "200": {
+                        "description": "Reordered"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
         "/api/v1/admin/posts": {
             "get": {
                 "tags": [
@@ -6570,6 +6922,163 @@
                     },
                     "404": {
                         "description": "Post or revision not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/homepage/sections": {
+            "get": {
+                "tags": [
+                    "Admin Homepage Sections"
+                ],
+                "summary": "List homepage sections",
+                "operationId": "adminHomepageSectionsIndex",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Admin Homepage Sections"
+                ],
+                "summary": "Create homepage section",
+                "operationId": "adminHomepageSectionsStore",
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/homepage/sections/{id}": {
+            "get": {
+                "tags": [
+                    "Admin Homepage Sections"
+                ],
+                "summary": "Show homepage section",
+                "operationId": "adminHomepageSectionsShow",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Admin Homepage Sections"
+                ],
+                "summary": "Update homepage section",
+                "operationId": "adminHomepageSectionsUpdate",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Updated"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Admin Homepage Sections"
+                ],
+                "summary": "Delete homepage section",
+                "operationId": "adminHomepageSectionsDestroy",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Deleted"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/homepage/sections/bulk": {
+            "post": {
+                "tags": [
+                    "Admin Homepage Sections"
+                ],
+                "summary": "Bulk action for homepage sections",
+                "operationId": "adminHomepageSectionsBulk",
+                "responses": {
+                    "200": {
+                        "description": "Bulk processed"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/homepage/sections/reorder": {
+            "put": {
+                "tags": [
+                    "Admin Homepage Sections"
+                ],
+                "summary": "Reorder homepage sections",
+                "operationId": "adminHomepageSectionsReorder",
+                "responses": {
+                    "200": {
+                        "description": "Reordered"
                     }
                 },
                 "security": [
@@ -8987,6 +9496,44 @@
                 },
                 "type": "object"
             },
+            "AdminCompetitiveFeature": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "title": {
+                        "type": "string",
+                        "example": "More Quality"
+                    },
+                    "description": {
+                        "type": "string",
+                        "example": "Quality beyond expectations"
+                    },
+                    "icon": {
+                        "type": "string",
+                        "example": "https://example.com/icon.webp",
+                        "nullable": true
+                    },
+                    "is_active": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "sort_order": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
             "AdminContactMessage": {
                 "title": "Admin Contact Message",
                 "description": "Admin contact message representation",
@@ -9426,6 +9973,44 @@
                 },
                 "type": "object"
             },
+            "AdminPartner": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Alizz Furniture"
+                    },
+                    "logo": {
+                        "type": "string",
+                        "example": "https://example.com/logo.webp"
+                    },
+                    "url": {
+                        "type": "string",
+                        "example": "https://partner.example.com",
+                        "nullable": true
+                    },
+                    "is_active": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "sort_order": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
             "AdminPost": {
                 "properties": {
                     "id": {
@@ -9550,6 +10135,45 @@
                         "nullable": true
                     },
                     "post_modified": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "AdminSection": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "title": {
+                        "type": "string",
+                        "example": "Electronics"
+                    },
+                    "icon": {
+                        "type": "string",
+                        "example": "icon-bolt",
+                        "nullable": true
+                    },
+                    "image": {
+                        "type": "string",
+                        "example": "https://example.com/section.webp",
+                        "nullable": true
+                    },
+                    "is_active": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "sort_order": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
                         "type": "string",
                         "format": "date-time"
                     }
@@ -9859,6 +10483,10 @@
             "description": "Comment moderation and management"
         },
         {
+            "name": "Admin Homepage Features",
+            "description": "Homepage feature CRUD, bulk actions, and sorting"
+        },
+        {
             "name": "Admin Contact Messages",
             "description": "Contact message moderation and inbox operations"
         },
@@ -9883,6 +10511,10 @@
             "description": "Export, import, and site health tools"
         },
         {
+            "name": "Admin Homepage",
+            "description": "Homepage overview and preview"
+        },
+        {
             "name": "Admin Media",
             "description": "Media Library upload, CRUD, and bulk operations"
         },
@@ -9899,8 +10531,16 @@
             "description": "Offer category CRUD, bulk actions, and sorting"
         },
         {
+            "name": "Admin Homepage Partners",
+            "description": "Homepage partner CRUD, bulk actions, and sorting"
+        },
+        {
             "name": "Admin Posts",
             "description": "Post & Page CRUD, revisions, trash, bulk operations"
+        },
+        {
+            "name": "Admin Homepage Sections",
+            "description": "Homepage section CRUD, bulk actions, and sorting"
         },
         {
             "name": "Admin Settings",
