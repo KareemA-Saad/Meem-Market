@@ -6,7 +6,10 @@ use App\Http\Controllers\Api\V1\Admin\CommentController;
 use App\Http\Controllers\Api\V1\Admin\ContentTypeController;
 use App\Http\Controllers\Api\V1\Admin\CustomFieldController;
 use App\Http\Controllers\Api\V1\Admin\DashboardController;
+use App\Http\Controllers\Api\V1\Admin\CareerAdminController;
+use App\Http\Controllers\Api\V1\Admin\SliderAdminController;
 use App\Http\Controllers\Api\V1\Admin\BranchAdminController;
+use App\Http\Controllers\Api\V1\Admin\ContactMessageAdminController;
 use App\Http\Controllers\Api\V1\Admin\CountryAdminController;
 use App\Http\Controllers\Api\V1\Admin\ExportController;
 use App\Http\Controllers\Api\V1\Admin\MediaController;
@@ -124,6 +127,38 @@ Route::prefix('v1/admin')->group(function () {
             Route::get('/{id}', [BranchAdminController::class, 'show']);
             Route::put('/{id}', [BranchAdminController::class, 'update']);
             Route::delete('/{id}', [BranchAdminController::class, 'destroy']);
+        });
+
+        // Sprint 4: Careers
+        Route::prefix('careers')->middleware('can_do:manage_options')->group(function () {
+            Route::get('/', [CareerAdminController::class, 'index']);
+            Route::post('/', [CareerAdminController::class, 'store']);
+            Route::post('/bulk', [CareerAdminController::class, 'bulk']);
+            Route::put('/reorder', [CareerAdminController::class, 'reorder']);
+            Route::get('/{id}', [CareerAdminController::class, 'show']);
+            Route::put('/{id}', [CareerAdminController::class, 'update']);
+            Route::delete('/{id}', [CareerAdminController::class, 'destroy']);
+        });
+
+        // Sprint 4: Contact Messages
+        Route::prefix('contact-messages')->middleware('can_do:manage_options')->group(function () {
+            Route::get('/', [ContactMessageAdminController::class, 'index']);
+            Route::post('/bulk', [ContactMessageAdminController::class, 'bulk']);
+            Route::get('/{id}', [ContactMessageAdminController::class, 'show']);
+            Route::put('/{id}', [ContactMessageAdminController::class, 'update']);
+            Route::delete('/{id}', [ContactMessageAdminController::class, 'destroy']);
+        });
+
+        // Sprint 5: Sliders
+        Route::prefix('sliders')->middleware('can_do:manage_options')->group(function () {
+            Route::get('/', [SliderAdminController::class, 'index']);
+            Route::post('/', [SliderAdminController::class, 'store']);
+            Route::post('/bulk', [SliderAdminController::class, 'bulk']);
+            Route::put('/reorder', [SliderAdminController::class, 'reorder']);
+            Route::get('/{id}', [SliderAdminController::class, 'show']);
+            Route::post('/{id}', [SliderAdminController::class, 'update']);
+            Route::put('/{id}', [SliderAdminController::class, 'update']);
+            Route::delete('/{id}', [SliderAdminController::class, 'destroy']);
         });
 
         // User Management

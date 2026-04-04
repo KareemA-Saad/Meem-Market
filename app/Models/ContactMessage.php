@@ -12,5 +12,12 @@ class ContactMessage extends Model
         'phone',
         'subject',
         'message',
+        'is_read',
+        'read_at',
+    ];
+
+    protected $casts = [
+        'is_read' => 'boolean',
+        'read_at' => 'datetime',
     ];
 }

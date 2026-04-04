@@ -9,6 +9,7 @@ class Slider extends Model
     protected $fillable = [
         'title',
         'image',
+        'media_type',
         'link',
         'is_active',
         'sort_order',
@@ -16,6 +17,7 @@ class Slider extends Model
 
     protected $casts = [
         'is_active' => 'boolean',
+        'media_type' => 'string',
     ];
 
     public function scopeActive($query)

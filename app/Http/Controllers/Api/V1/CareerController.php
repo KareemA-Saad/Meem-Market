@@ -23,7 +23,10 @@ class CareerController extends Controller
     )]
     public function index(): JsonResponse
     {
-        $careers = Career::where('is_active', true)->get();
+        $careers = Career::query()
+            ->active()
+            ->ordered()
+            ->get();
 
         return response()->json([
             'data' => CareerResource::collection($careers),
