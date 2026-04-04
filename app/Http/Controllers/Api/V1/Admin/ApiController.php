@@ -30,12 +30,16 @@ abstract class ApiController extends Controller
     /**
      * Return an error response.
      */
-    protected function error(string $message, int $status = 400, ?array $errors = null): JsonResponse
+    protected function error(string $message, int $status = 400, ?array $errors = null, ?string $code = null): JsonResponse
     {
         $response = [
             'success' => false,
             'message' => $message,
         ];
+
+        if ($code !== null) {
+            $response['code'] = $code;
+        }
 
         if ($errors !== null) {
             $response['errors'] = $errors;
