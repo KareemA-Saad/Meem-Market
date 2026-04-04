@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests\Admin;
 
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 /**
  * Validates comment content/metadata updates during moderation.
@@ -23,5 +25,15 @@ class UpdateCommentRequest extends FormRequest
             'content' => ['sometimes', 'string'],
             'status' => ['sometimes', 'string', 'in:0,1,spam,trash'],
         ];
+    }
+
+    protected function failedValidation(Validator $validator): void
+    {
+        throw new HttpResponseException(response()->json([
+            'success' => false,
+            'message' => 'Validation failed.',
+            'code' => 'VALIDATION_ERROR',
+            'errors' => $validator->errors(),
+        ], 422));
     }
 }

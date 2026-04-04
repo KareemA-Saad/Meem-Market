@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests\Admin;
 
+use Illuminate\Contracts\Validation\Validator as ValidationContractValidator;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
 
@@ -53,5 +55,15 @@ class EditMediaRequest extends FormRequest
                 $validator->errors()->add('params', 'Scale requires params.width and/or params.height.');
             }
         });
+    }
+
+    protected function failedValidation(ValidationContractValidator $validator): void
+    {
+        throw new HttpResponseException(response()->json([
+            'success' => false,
+            'message' => 'Validation failed.',
+            'code' => 'VALIDATION_ERROR',
+            'errors' => $validator->errors(),
+        ], 422));
     }
 }
