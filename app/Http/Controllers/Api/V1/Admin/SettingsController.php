@@ -2,14 +2,22 @@
 
 namespace App\Http\Controllers\Api\V1\Admin;
 
+use App\Http\Requests\Admin\UpdateDiscussionSettingsRequest;
+use App\Http\Requests\Admin\UpdateGeneralSettingsRequest;
+use App\Http\Requests\Admin\UpdateMediaSettingsRequest;
+use App\Http\Requests\Admin\UpdatePermalinkSettingsRequest;
+use App\Http\Requests\Admin\UpdatePrivacySettingsRequest;
+use App\Http\Requests\Admin\UpdateReadingSettingsRequest;
+use App\Http\Requests\Admin\UpdateWritingSettingsRequest;
 use App\Http\Resources\V1\Admin\SettingsResource;
 use App\Services\OptionService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 use OpenApi\Attributes as OA;
 
 /**
- * Admin Settings API — GET/PUT for each WP-style settings section.
+ * Admin Settings API أ¢â‚¬â€‌ GET/PUT for each WP-style settings section.
  *
  * Each section maps to a fixed set of option keys. Reads/writes go through
  * OptionService which wraps the `options` table with request-level caching.
@@ -17,6 +25,16 @@ use OpenApi\Attributes as OA;
 #[OA\Tag(name: "Admin Settings", description: "CMS settings management (general, writing, reading, discussion, media, permalinks, privacy)")]
 class SettingsController extends ApiController
 {
+    private const SECTION_REQUESTS = [
+        'general' => UpdateGeneralSettingsRequest::class,
+        'writing' => UpdateWritingSettingsRequest::class,
+        'reading' => UpdateReadingSettingsRequest::class,
+        'discussion' => UpdateDiscussionSettingsRequest::class,
+        'media' => UpdateMediaSettingsRequest::class,
+        'permalinks' => UpdatePermalinkSettingsRequest::class,
+        'privacy' => UpdatePrivacySettingsRequest::class,
+    ];
+
     /**
      * Option-key lists per section. Acts as the whitelist of what can be
      * read/written, and as the single source of truth for section shapes.
@@ -117,7 +135,7 @@ class SettingsController extends ApiController
         private readonly OptionService $optionService,
     ) {}
 
-    // ─── GET Section ─────────────────────────────────────────────
+    // أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬ GET Section أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬
 
     #[OA\Get(
         path: "/api/v1/admin/settings/{section}",
@@ -148,7 +166,7 @@ class SettingsController extends ApiController
         return $this->success(new SettingsResource($this->readSection($section)));
     }
 
-    // ─── PUT Section ─────────────────────────────────────────────
+    // أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬ PUT Section أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬
 
     #[OA\Put(
         path: "/api/v1/admin/settings/{section}",
@@ -186,7 +204,18 @@ class SettingsController extends ApiController
             return $this->error("Unknown settings section: {$section}", 404);
         }
 
-        $data = $request->only($keys);
+        $validator = Validator::make($request->all(), $this->rulesForSection($section));
+
+        if ($validator->fails()) {
+            return $this->error(
+                'Validation failed.',
+                422,
+                $validator->errors()->toArray(),
+                'VALIDATION_ERROR'
+            );
+        }
+
+        $data = $validator->validated();
 
         if (empty($data)) {
             return $this->error('No valid settings provided. Allowed keys: ' . implode(', ', $keys), 422);
@@ -195,9 +224,9 @@ class SettingsController extends ApiController
         return $this->success(new SettingsResource($this->writeSection($section, $data)));
     }
 
-    // ═══════════════════════════════════════════════════════════
+    // أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯
     //  Private Helpers
-    // ═══════════════════════════════════════════════════════════
+    // أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯أ¢â€¢ع¯
 
     /**
      * @return array<string, mixed>
@@ -263,5 +292,21 @@ class SettingsController extends ApiController
         }
 
         return in_array(strtolower(trim((string) $value)), ['1', 'true', 'yes', 'on'], true);
+    }
+
+    private function rulesForSection(string $section): array
+    {
+        $requestClass = self::SECTION_REQUESTS[$section] ?? null;
+
+        if (!$requestClass) {
+            return [];
+        }
+
+        /** @var \Illuminate\Foundation\Http\FormRequest $requestInstance */
+        $requestInstance = app($requestClass);
+
+        return method_exists($requestInstance, 'rules')
+            ? $requestInstance->rules()
+            : [];
     }
 }

@@ -35,7 +35,12 @@ class HomeController extends Controller
                 'sliders' => SliderResource::collection(Slider::where('is_active', true)->orderBy('sort_order')->get()),
                 'sections' => SectionResource::collection(Section::where('is_active', true)->orderBy('sort_order')->get()),
                 'partners' => PartnerResource::collection(Partner::where('is_active', true)->orderBy('sort_order')->get()),
-                'features' => CompetitiveFeatureResource::collection(CompetitiveFeature::orderBy('sort_order')->take(3)->get()),
+                'features' => CompetitiveFeatureResource::collection(
+                    CompetitiveFeature::where('is_active', true)
+                        ->orderBy('sort_order')
+                        ->take(3)
+                        ->get()
+                ),
             ],
         ]);
     }

@@ -2,10 +2,20 @@
 
 namespace App\Http\Controllers\Api\V1\Admin;
 
+use App\Http\Requests\Admin\StoreQuickDraftRequest;
+use App\Models\Branch;
+use App\Models\Career;
 use App\Models\Comment;
+use App\Models\CompetitiveFeature;
+use App\Models\ContactMessage;
+use App\Models\Country;
+use App\Models\Offer;
+use App\Models\OfferCategory;
+use App\Models\Partner;
 use App\Models\Post;
+use App\Models\Section;
+use App\Models\Slider;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
 
 /**
@@ -15,7 +25,7 @@ use OpenApi\Attributes as OA;
 #[OA\Tag(name: "Admin Dashboard", description: "Dashboard statistics and quick actions")]
 class DashboardController extends ApiController
 {
-    // ─── Stats ───────────────────────────────────────────────────
+    // أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬ Stats أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬
 
     #[OA\Get(
         path: "/api/v1/admin/dashboard/stats",
@@ -65,11 +75,47 @@ class DashboardController extends ApiController
     )]
     public function stats(): JsonResponse
     {
+        $homepageSummary = [
+            'sliders' => [
+                'total' => Slider::count(),
+                'active' => Slider::where('is_active', true)->count(),
+            ],
+            'sections' => [
+                'total' => Section::count(),
+                'active' => Section::where('is_active', true)->count(),
+            ],
+            'partners' => [
+                'total' => Partner::count(),
+                'active' => Partner::where('is_active', true)->count(),
+            ],
+            'features' => [
+                'total' => CompetitiveFeature::count(),
+                'active' => CompetitiveFeature::where('is_active', true)->count(),
+            ],
+        ];
+
         return $this->success([
             'posts_count' => Post::ofType('post')->ofStatus('publish')->count(),
             'pages_count' => Post::ofType('page')->ofStatus('publish')->count(),
             'comments_count' => Comment::approved()->count(),
             'comments_pending' => Comment::pending()->count(),
+            'business_summary' => [
+                'countries_count' => Country::count(),
+                'branches_count' => Branch::count(),
+                'offer_categories_count' => OfferCategory::count(),
+                'offers_count' => Offer::count(),
+                'active_offers_count' => Offer::where('is_active', true)->count(),
+                'careers_count' => Career::count(),
+                'active_careers_count' => Career::where('is_active', true)->count(),
+                'unread_contact_messages_count' => ContactMessage::where('is_read', false)->count(),
+            ],
+            'homepage_summary' => [
+                ...$homepageSummary,
+                'is_publish_ready' => $homepageSummary['sliders']['active'] > 0
+                    && $homepageSummary['sections']['active'] > 0
+                    && $homepageSummary['partners']['active'] > 0
+                    && $homepageSummary['features']['active'] > 0,
+            ],
             'recent_posts' => Post::ofType('post')
                 ->ofStatus('publish')
                 ->with('author:id,name,display_name')
@@ -89,7 +135,7 @@ class DashboardController extends ApiController
         ]);
     }
 
-    // ─── Quick Draft ─────────────────────────────────────────────
+    // أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬ Quick Draft أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬
 
     #[OA\Post(
         path: "/api/v1/admin/dashboard/quick-draft",
@@ -124,21 +170,17 @@ class DashboardController extends ApiController
             new OA\Response(response: 422, description: "Validation error"),
         ]
     )]
-    public function quickDraft(Request $request): JsonResponse
+    public function quickDraft(StoreQuickDraftRequest $request): JsonResponse
     {
-        $request->validate([
-            'title' => ['required', 'string', 'max:255'],
-            'content' => ['sometimes', 'string'],
-        ]);
-
         $now = now();
+        $validated = $request->validated();
 
         $post = Post::create([
             'author_id' => $request->user()->id,
             'post_date' => $now,
             'post_date_gmt' => $now->utc(),
-            'content' => $request->input('content', ''),
-            'title' => $request->input('title'),
+            'content' => (string) ($validated['content'] ?? ''),
+            'title' => (string) $validated['title'],
             'excerpt' => '',
             'status' => 'draft',
             'comment_status' => 'open',

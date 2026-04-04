@@ -7,16 +7,20 @@ use App\Http\Controllers\Api\V1\Admin\ContentTypeController;
 use App\Http\Controllers\Api\V1\Admin\CustomFieldController;
 use App\Http\Controllers\Api\V1\Admin\DashboardController;
 use App\Http\Controllers\Api\V1\Admin\CareerAdminController;
+use App\Http\Controllers\Api\V1\Admin\CompetitiveFeatureAdminController;
 use App\Http\Controllers\Api\V1\Admin\SliderAdminController;
 use App\Http\Controllers\Api\V1\Admin\BranchAdminController;
 use App\Http\Controllers\Api\V1\Admin\ContactMessageAdminController;
 use App\Http\Controllers\Api\V1\Admin\CountryAdminController;
 use App\Http\Controllers\Api\V1\Admin\ExportController;
+use App\Http\Controllers\Api\V1\Admin\HomepageAdminController;
 use App\Http\Controllers\Api\V1\Admin\MediaController;
 use App\Http\Controllers\Api\V1\Admin\MenuController;
 use App\Http\Controllers\Api\V1\Admin\OfferAdminController;
 use App\Http\Controllers\Api\V1\Admin\OfferCategoryAdminController;
+use App\Http\Controllers\Api\V1\Admin\PartnerAdminController;
 use App\Http\Controllers\Api\V1\Admin\PostController;
+use App\Http\Controllers\Api\V1\Admin\SectionAdminController;
 use App\Http\Controllers\Api\V1\Admin\SettingsController;
 use App\Http\Controllers\Api\V1\Admin\SiteHealthController;
 use App\Http\Controllers\Api\V1\Admin\TaxonomyController;
@@ -32,7 +36,7 @@ use App\Http\Controllers\Api\V1\OfferCategoryController;
 use App\Http\Controllers\Api\V1\SettingController;
 use Illuminate\Support\Facades\Route;
 
-// ─── PUBLIC ROUTES (existing, untouched) ─────────────────────────
+// أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬ PUBLIC ROUTES (existing, untouched) أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬
 Route::prefix('v1')->group(function () {
     Route::get('/home', [HomeController::class, 'index']);
     Route::get('/countries', [CountryController::class, 'index']);
@@ -48,16 +52,16 @@ Route::prefix('v1')->group(function () {
     Route::post('/contact', [ContactController::class, 'store']);
     Route::get('/settings/{group}', [SettingController::class, 'show']);
 
-    // Blog & Pages — public read-only (CMS content)
+    // Blog & Pages أ¢â‚¬â€‌ public read-only (CMS content)
     Route::get('/blog', [ContentController::class, 'blogIndex']);
     Route::get('/blog/{slug}', [ContentController::class, 'blogShow']);
     Route::get('/pages/{slug}', [ContentController::class, 'pageShow']);
 });
 
-// ─── ADMIN ROUTES ────────────────────────────────────────────────
+// أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬ ADMIN ROUTES أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬
 Route::prefix('v1/admin')->group(function () {
 
-    // Auth — unauthenticated
+    // Auth أ¢â‚¬â€‌ unauthenticated
     Route::prefix('auth')->group(function () {
         Route::post('/login', [AuthController::class, 'login'])
             ->middleware('throttle:5,1');
@@ -66,14 +70,14 @@ Route::prefix('v1/admin')->group(function () {
         Route::post('/reset-password', [AuthController::class, 'resetPassword']);
     });
 
-    // Auth — authenticated
+    // Auth أ¢â‚¬â€‌ authenticated
     Route::middleware('auth:sanctum')->prefix('auth')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);
         Route::get('/me', [AuthController::class, 'me']);
         Route::put('/me', [AuthController::class, 'updateProfile']);
     });
 
-    // ── Authenticated admin endpoints (Sprint 3+) ────────────
+    // أ¢â€‌â‚¬أ¢â€‌â‚¬ Authenticated admin endpoints (Sprint 3+) أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬
     Route::middleware('auth:sanctum')->group(function () {
 
         // Dashboard
@@ -161,6 +165,42 @@ Route::prefix('v1/admin')->group(function () {
             Route::delete('/{id}', [SliderAdminController::class, 'destroy']);
         });
 
+        // Sprint 8 (Phase 1): Admin Dashboard & Homepage Management
+        Route::prefix('homepage')->middleware('can_do:manage_options')->group(function () {
+            Route::get('/overview', [HomepageAdminController::class, 'overview']);
+            Route::get('/preview', [HomepageAdminController::class, 'preview']);
+
+            Route::prefix('sections')->group(function () {
+                Route::get('/', [SectionAdminController::class, 'index']);
+                Route::post('/', [SectionAdminController::class, 'store']);
+                Route::post('/bulk', [SectionAdminController::class, 'bulk']);
+                Route::put('/reorder', [SectionAdminController::class, 'reorder']);
+                Route::get('/{id}', [SectionAdminController::class, 'show']);
+                Route::put('/{id}', [SectionAdminController::class, 'update']);
+                Route::delete('/{id}', [SectionAdminController::class, 'destroy']);
+            });
+
+            Route::prefix('partners')->group(function () {
+                Route::get('/', [PartnerAdminController::class, 'index']);
+                Route::post('/', [PartnerAdminController::class, 'store']);
+                Route::post('/bulk', [PartnerAdminController::class, 'bulk']);
+                Route::put('/reorder', [PartnerAdminController::class, 'reorder']);
+                Route::get('/{id}', [PartnerAdminController::class, 'show']);
+                Route::put('/{id}', [PartnerAdminController::class, 'update']);
+                Route::delete('/{id}', [PartnerAdminController::class, 'destroy']);
+            });
+
+            Route::prefix('features')->group(function () {
+                Route::get('/', [CompetitiveFeatureAdminController::class, 'index']);
+                Route::post('/', [CompetitiveFeatureAdminController::class, 'store']);
+                Route::post('/bulk', [CompetitiveFeatureAdminController::class, 'bulk']);
+                Route::put('/reorder', [CompetitiveFeatureAdminController::class, 'reorder']);
+                Route::get('/{id}', [CompetitiveFeatureAdminController::class, 'show']);
+                Route::put('/{id}', [CompetitiveFeatureAdminController::class, 'update']);
+                Route::delete('/{id}', [CompetitiveFeatureAdminController::class, 'destroy']);
+            });
+        });
+
         // User Management
         Route::prefix('users')->group(function () {
             Route::get('/', [UserController::class, 'index'])
@@ -200,7 +240,7 @@ Route::prefix('v1/admin')->group(function () {
                 ->middleware('can_do:edit_posts');
         });
 
-        // Page Management (Sprint 4) — same controller, different type
+        // Page Management (Sprint 4) أ¢â‚¬â€‌ same controller, different type
         Route::prefix('pages')->group(function () {
             Route::get('/', [PostController::class, 'index'])
                 ->middleware('can_do:edit_pages');
@@ -256,7 +296,7 @@ Route::prefix('v1/admin')->group(function () {
                 ->middleware('can_do:manage_categories');
         });
 
-        // Custom Taxonomy Management (Sprint 5) — generic routes
+        // Custom Taxonomy Management (Sprint 5) أ¢â‚¬â€‌ generic routes
         Route::prefix('taxonomies/{taxonomy}/terms')->group(function () {
             Route::get('/', [TaxonomyController::class, 'index'])
                 ->middleware('can_do:manage_categories');
@@ -272,7 +312,7 @@ Route::prefix('v1/admin')->group(function () {
                 ->middleware('can_do:manage_categories');
         });
 
-        // ── Sprint 6: Media Library ──────────────────────────────
+        // أ¢â€‌â‚¬أ¢â€‌â‚¬ Sprint 6: Media Library أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬
         Route::prefix('media')->group(function () {
             Route::get('/', [MediaController::class, 'index'])
                 ->middleware('can_do:upload_files');
@@ -290,7 +330,7 @@ Route::prefix('v1/admin')->group(function () {
                 ->middleware('can_do:upload_files');
         });
 
-        // ── Sprint 7: Comment Management ─────────────────────────
+        // أ¢â€‌â‚¬أ¢â€‌â‚¬ Sprint 7: Comment Management أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬
         Route::prefix('comments')->group(function () {
             Route::get('/', [CommentController::class, 'index'])
                 ->middleware('can_do:moderate_comments');
@@ -316,13 +356,13 @@ Route::prefix('v1/admin')->group(function () {
                 ->middleware('can_do:moderate_comments');
         });
 
-        // ── Sprint 7: Settings Management ────────────────────────
+        // أ¢â€‌â‚¬أ¢â€‌â‚¬ Sprint 7: Settings Management أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬
         Route::prefix('settings')->middleware('can_do:manage_options')->group(function () {
             Route::get('/{section}', [SettingsController::class, 'show']);
             Route::put('/{section}', [SettingsController::class, 'update']);
         });
 
-        // ── Sprint 8: Content Type Definitions ───────────────────
+        // أ¢â€‌â‚¬أ¢â€‌â‚¬ Sprint 8: Content Type Definitions أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬
         Route::prefix('content-types')->middleware('can_do:manage_options')->group(function () {
             Route::get('/post-types', [ContentTypeController::class, 'indexPostTypes']);
             Route::post('/post-types', [ContentTypeController::class, 'storePostType']);
@@ -337,7 +377,7 @@ Route::prefix('v1/admin')->group(function () {
             Route::delete('/taxonomies/{slug}', [ContentTypeController::class, 'destroyTaxonomy']);
         });
 
-        // ── Sprint 8: Custom Fields (ACF-style) ──────────────────
+        // أ¢â€‌â‚¬أ¢â€‌â‚¬ Sprint 8: Custom Fields (ACF-style) أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬
         Route::prefix('field-groups')->middleware('can_do:manage_options')->group(function () {
             Route::get('/', [CustomFieldController::class, 'index']);
             Route::post('/', [CustomFieldController::class, 'store']);
@@ -346,7 +386,7 @@ Route::prefix('v1/admin')->group(function () {
             Route::delete('/{id}', [CustomFieldController::class, 'destroy']);
         });
 
-        // ── Sprint 8: Navigation Menus ───────────────────────────
+        // أ¢â€‌â‚¬أ¢â€‌â‚¬ Sprint 8: Navigation Menus أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬
         Route::prefix('menus')->middleware('can_do:edit_theme_options')->group(function () {
             Route::get('/', [MenuController::class, 'index']);
             Route::post('/', [MenuController::class, 'store']);
@@ -359,7 +399,7 @@ Route::prefix('v1/admin')->group(function () {
             Route::put('/{id}/locations', [MenuController::class, 'updateLocations']);
         });
 
-        // ── Sprint 8: Tools ──────────────────────────────────────
+        // أ¢â€‌â‚¬أ¢â€‌â‚¬ Sprint 8: Tools أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬
         Route::prefix('tools')->group(function () {
             Route::post('/export', [ExportController::class, 'export'])
                 ->middleware('can_do:export');
