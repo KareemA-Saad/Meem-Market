@@ -6,7 +6,7 @@ use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class BulkOfferCategoryRequest extends FormRequest
+class ReorderOfferCategoriesRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -16,17 +16,18 @@ class BulkOfferCategoryRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'action' => ['required', 'string', 'in:delete,activate,deactivate'],
-            'ids'    => ['required', 'array', 'min:1'],
-            'ids.*'  => ['integer', 'exists:offer_categories,id'],
+            'items'              => ['required', 'array', 'min:1'],
+            'items.*.id'         => ['required', 'integer', 'exists:offer_categories,id'],
+            'items.*.sort_order' => ['required', 'integer', 'min:0'],
         ];
     }
 
     public function messages(): array
     {
         return [
-            'action.in' => 'The action must be one of: delete, activate, deactivate.',
-            'ids.min'   => 'At least one offer category must be selected.',
+            'items.required'              => 'At least one item is required for reordering.',
+            'items.*.id.exists'           => 'One or more offer category IDs are invalid.',
+            'items.*.sort_order.required' => 'Each item must have a sort_order value.',
         ];
     }
 

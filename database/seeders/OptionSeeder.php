@@ -92,6 +92,9 @@ class OptionSeeder extends Seeder
                     'edit_theme_options' => true,
                     'delete_themes' => true,
                     'export' => true,
+                    // Retail admin capabilities (Sprint 1)
+                    'manage_offers' => true,
+                    'manage_offer_categories' => true,
                 ],
             ],
             'editor' => [
@@ -131,6 +134,9 @@ class OptionSeeder extends Seeder
                     'delete_private_pages' => true,
                     'edit_private_pages' => true,
                     'read_private_pages' => true,
+                    // Retail admin capabilities (Sprint 1)
+                    'manage_offers' => true,
+                    'manage_offer_categories' => true,
                 ],
             ],
             'author' => [

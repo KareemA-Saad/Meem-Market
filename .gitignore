@@ -22,6 +22,8 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
-docs
+docs/*
+!docs/admin-dashboard/
+!docs/admin-dashboard/**
 .agent
 .brv

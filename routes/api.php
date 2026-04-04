@@ -9,6 +9,8 @@ use App\Http\Controllers\Api\V1\Admin\DashboardController;
 use App\Http\Controllers\Api\V1\Admin\ExportController;
 use App\Http\Controllers\Api\V1\Admin\MediaController;
 use App\Http\Controllers\Api\V1\Admin\MenuController;
+use App\Http\Controllers\Api\V1\Admin\OfferAdminController;
+use App\Http\Controllers\Api\V1\Admin\OfferCategoryAdminController;
 use App\Http\Controllers\Api\V1\Admin\PostController;
 use App\Http\Controllers\Api\V1\Admin\SettingsController;
 use App\Http\Controllers\Api\V1\Admin\SiteHealthController;
@@ -75,6 +77,29 @@ Route::prefix('v1/admin')->group(function () {
                 ->middleware('can_do:read');
             Route::post('/quick-draft', [DashboardController::class, 'quickDraft'])
                 ->middleware('can_do:edit_posts');
+        });
+
+        // Sprint 1: Retail Offer Categories
+        Route::prefix('offer-categories')->middleware('can_do:manage_offer_categories')->group(function () {
+            Route::get('/', [OfferCategoryAdminController::class, 'index']);
+            Route::post('/', [OfferCategoryAdminController::class, 'store']);
+            Route::post('/bulk', [OfferCategoryAdminController::class, 'bulk']);
+            Route::put('/reorder', [OfferCategoryAdminController::class, 'reorder']);
+            Route::get('/{id}', [OfferCategoryAdminController::class, 'show']);
+            Route::put('/{id}', [OfferCategoryAdminController::class, 'update']);
+            Route::delete('/{id}', [OfferCategoryAdminController::class, 'destroy']);
+        });
+
+        // Sprint 1: Retail Offers
+        Route::prefix('offers')->middleware('can_do:manage_offers')->group(function () {
+            Route::get('/', [OfferAdminController::class, 'index']);
+            Route::post('/', [OfferAdminController::class, 'store']);
+            Route::post('/bulk', [OfferAdminController::class, 'bulk']);
+            Route::put('/reorder', [OfferAdminController::class, 'reorder']);
+            Route::get('/{id}', [OfferAdminController::class, 'show']);
+            Route::post('/{id}', [OfferAdminController::class, 'update']);
+            Route::put('/{id}', [OfferAdminController::class, 'update']);
+            Route::delete('/{id}', [OfferAdminController::class, 'destroy']);
         });
 
         // User Management

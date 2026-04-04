@@ -36,6 +36,7 @@ class ReorderOffersRequest extends FormRequest
         throw new HttpResponseException(response()->json([
             'success' => false,
             'message' => 'Validation failed.',
+            'code'    => 'VALIDATION_ERROR',
             'errors'  => $validator->errors(),
         ], 422));
     }
