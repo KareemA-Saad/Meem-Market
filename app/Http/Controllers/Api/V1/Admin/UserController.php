@@ -14,7 +14,9 @@ use App\Models\UserMeta;
 use App\Services\RoleService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use OpenApi\Attributes as OA;
@@ -76,15 +78,15 @@ class UserController extends ApiController
         }
 
         // Sorting
-        $sortBy = $request->query('sort_by', 'id');
-        $sortDir = $request->query('sort_dir', 'desc');
+        $sortBy = (string) $request->query('sort_by', 'id');
+        $sortDir = strtolower((string) $request->query('sort_dir', 'desc'));
         $allowedSorts = ['name', 'email', 'login', 'registered_at', 'id'];
 
         if (in_array($sortBy, $allowedSorts, true)) {
             $query->orderBy($sortBy, $sortDir === 'asc' ? 'asc' : 'desc');
         }
 
-        $perPage = min((int) $request->query('per_page', 20), 100);
+        $perPage = min(max((int) $request->query('per_page', 20), 1), 100);
 
         $paginator = $query->paginate($perPage);
 
@@ -139,39 +141,43 @@ class UserController extends ApiController
         $validated = $request->validated();
         $plainPassword = $validated['password'] ?? Str::random(16);
 
-        $user = User::create([
-            'name' => $validated['login'],
-            'login' => $validated['login'],
-            'nicename' => Str::slug($validated['login']),
-            'email' => $validated['email'],
-            'password' => Hash::make($plainPassword),
-            'display_name' => $validated['login'],
-            'registered_at' => now(),
-            'url' => $validated['url'] ?? '',
-            'activation_key' => '',
-            'status' => 0,
-        ]);
-
-        // Assign role
-        $this->roleService->setUserRole($user, $validated['role']);
-
-        // Seed user meta
-        $metaDefaults = [
-            'nickname' => $validated['login'],
-            'first_name' => $validated['first_name'] ?? '',
-            'last_name' => $validated['last_name'] ?? '',
-            'description' => '',
-            'rich_editing' => 'true',
-            'admin_color' => 'fresh',
-        ];
-
-        foreach ($metaDefaults as $key => $value) {
-            UserMeta::create([
-                'user_id' => $user->id,
-                'meta_key' => $key,
-                'meta_value' => $value,
+        $user = DB::transaction(function () use ($validated, $plainPassword): User {
+            $user = User::create([
+                'name' => $validated['login'],
+                'login' => $validated['login'],
+                'nicename' => Str::slug($validated['login']),
+                'email' => $validated['email'],
+                'password' => Hash::make($plainPassword),
+                'display_name' => $validated['login'],
+                'registered_at' => now(),
+                'url' => $validated['url'] ?? '',
+                'activation_key' => '',
+                'status' => 0,
             ]);
-        }
+
+            // Assign role
+            $this->roleService->setUserRole($user, $validated['role']);
+
+            // Seed user meta
+            $metaDefaults = [
+                'nickname' => $validated['login'],
+                'first_name' => $validated['first_name'] ?? '',
+                'last_name' => $validated['last_name'] ?? '',
+                'description' => '',
+                'rich_editing' => 'true',
+                'admin_color' => 'fresh',
+            ];
+
+            foreach ($metaDefaults as $key => $value) {
+                UserMeta::create([
+                    'user_id' => $user->id,
+                    'meta_key' => $key,
+                    'meta_value' => $value,
+                ]);
+            }
+
+            return $user;
+        });
 
         // Send notification email if requested
         if ($request->boolean('send_notification')) {
@@ -179,6 +185,12 @@ class UserController extends ApiController
         }
 
         $user->load('meta');
+
+        Log::info('admin.users.created', [
+            'actor_id' => $request->user()?->id,
+            'resource_id' => $user->id,
+            'role' => $validated['role'],
+        ]);
 
         return $this->success(new UserResource($user), 201);
     }
@@ -216,7 +228,7 @@ class UserController extends ApiController
         $user = User::with('meta')->find($id);
 
         if (!$user) {
-            return $this->error('User not found.', 404);
+            return $this->error('User not found.', 404, null, 'USER_NOT_FOUND');
         }
 
         // Allow viewing own profile or require edit_users capability
@@ -290,7 +302,7 @@ class UserController extends ApiController
             $currentUser = $request->user();
 
             if (!$this->roleService->userCan($currentUser, 'promote_users')) {
-                return $this->error('You do not have permission to change user roles.', 403);
+                return $this->error('You do not have permission to change user roles.', 403, null, 'FORBIDDEN');
             }
 
             $this->roleService->setUserRole($user, $validated['role']);
@@ -304,28 +316,36 @@ class UserController extends ApiController
             $modelUpdates['password'] = Hash::make($validated['password']);
         }
 
-        if (!empty($modelUpdates)) {
-            $user->update($modelUpdates);
-        }
-
-        // Update meta fields
-        $metaFields = ['first_name', 'last_name', 'nickname', 'bio'];
-
-        foreach ($metaFields as $field) {
-            if (!isset($validated[$field])) {
-                continue;
+        DB::transaction(function () use ($user, $modelUpdates, $validated): void {
+            if (!empty($modelUpdates)) {
+                $user->update($modelUpdates);
             }
 
-            $metaKey = $field === 'bio' ? 'description' : $field;
+            // Update meta fields
+            $metaFields = ['first_name', 'last_name', 'nickname', 'bio'];
 
-            UserMeta::updateOrCreate(
-                ['user_id' => $user->id, 'meta_key' => $metaKey],
-                ['meta_value' => $validated[$field]],
-            );
-        }
+            foreach ($metaFields as $field) {
+                if (!isset($validated[$field])) {
+                    continue;
+                }
+
+                $metaKey = $field === 'bio' ? 'description' : $field;
+
+                UserMeta::updateOrCreate(
+                    ['user_id' => $user->id, 'meta_key' => $metaKey],
+                    ['meta_value' => $validated[$field]],
+                );
+            }
+        });
 
         $user->refresh();
         $user->load('meta');
+
+        Log::info('admin.users.updated', [
+            'actor_id' => $request->user()?->id,
+            'resource_id' => $user->id,
+            'role_changed' => isset($validated['role']),
+        ]);
 
         return $this->success(new UserResource($user));
     }
@@ -370,22 +390,26 @@ class UserController extends ApiController
         $user = User::find($id);
 
         if (!$user) {
-            return $this->error('User not found.', 404);
+            return $this->error('User not found.', 404, null, 'USER_NOT_FOUND');
         }
 
         // Prevent self-deletion
         if ($request->user()->id === $user->id) {
-            return $this->error('You cannot delete your own account.', 403);
+            return $this->error('You cannot delete your own account.', 403, null, 'SELF_DELETE_FORBIDDEN');
         }
 
         // Reassign or delete content
         $reassignTo = $request->query('reassign_to');
 
+        if ($reassignTo !== null && (int) $reassignTo === $user->id) {
+            return $this->error('You cannot reassign content to the same user being deleted.', 422, null, 'INVALID_REASSIGN_TARGET');
+        }
+
         if ($reassignTo) {
-            $targetUser = User::find($reassignTo);
+            $targetUser = User::find((int) $reassignTo);
 
             if (!$targetUser) {
-                return $this->error('Reassignment target user not found.', 404);
+                return $this->error('Reassignment target user not found.', 404, null, 'REASSIGN_TARGET_NOT_FOUND');
             }
 
             Post::where('author_id', $user->id)->update(['author_id' => $targetUser->id]);
@@ -404,6 +428,12 @@ class UserController extends ApiController
 
         // Delete the user
         $user->delete();
+
+        Log::info('admin.users.deleted', [
+            'actor_id' => $request->user()?->id,
+            'resource_id' => $id,
+            'reassign_to' => $reassignTo !== null ? (int) $reassignTo : null,
+        ]);
 
         return $this->success(['message' => 'User deleted successfully.']);
     }
@@ -457,20 +487,31 @@ class UserController extends ApiController
         $validated = $request->validated();
         $action = $validated['action'];
         $userIds = $validated['user_ids'];
+        $currentUser = $request->user();
+
+        if ($action === 'change_role' && !$this->roleService->userCan($currentUser, 'promote_users')) {
+            return $this->error('You do not have permission to change user roles.', 403, null, 'FORBIDDEN');
+        }
 
         // Exclude current user from bulk operations
-        $currentUserId = $request->user()->id;
+        $currentUserId = $currentUser->id;
         $userIds = array_filter($userIds, fn(int $id) => $id !== $currentUserId);
 
         if (empty($userIds)) {
-            return $this->error('No valid users to process (you cannot include yourself).', 422);
+            return $this->error('No valid users to process (you cannot include yourself).', 422, null, 'NO_VALID_USERS');
         }
 
         if ($action === 'delete') {
-            return $this->bulkDelete($userIds, $validated['reassign_to'] ?? null);
+            $reassignTo = isset($validated['reassign_to']) ? (int) $validated['reassign_to'] : null;
+
+            if ($reassignTo !== null && in_array($reassignTo, $userIds, true)) {
+                return $this->error('Reassignment target cannot be part of the deleted users list.', 422, null, 'INVALID_REASSIGN_TARGET');
+            }
+
+            return $this->bulkDelete($userIds, $reassignTo);
         }
 
-        return $this->bulkChangeRole($userIds, $validated['role']);
+        return $this->bulkChangeRole($userIds, (string) $validated['role']);
     }
 
     /**
@@ -482,7 +523,7 @@ class UserController extends ApiController
             $targetUser = User::find($reassignTo);
 
             if (!$targetUser) {
-                return $this->error('Reassignment target user not found.', 404);
+                return $this->error('Reassignment target user not found.', 404, null, 'REASSIGN_TARGET_NOT_FOUND');
             }
 
             Post::whereIn('author_id', $userIds)->update(['author_id' => $targetUser->id]);
@@ -500,6 +541,13 @@ class UserController extends ApiController
             ->delete();
 
         $deleted = User::whereIn('id', $userIds)->delete();
+
+        Log::info('admin.users.bulk_deleted', [
+            'actor_id' => request()->user()?->id,
+            'affected' => $deleted,
+            'ids' => array_values($userIds),
+            'reassign_to' => $reassignTo,
+        ]);
 
         return $this->success([
             'message' => "{$deleted} user(s) deleted successfully.",
@@ -519,6 +567,13 @@ class UserController extends ApiController
             $this->roleService->setUserRole($user, $role);
             $affected++;
         }
+
+        Log::info('admin.users.bulk_role_changed', [
+            'actor_id' => request()->user()?->id,
+            'affected' => $affected,
+            'ids' => array_values($userIds),
+            'role' => $role,
+        ]);
 
         return $this->success([
             'message' => "{$affected} user(s) updated to role '{$role}'.",

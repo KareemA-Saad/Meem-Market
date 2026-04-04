@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Services\RoleService;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -16,7 +17,7 @@ class UpdateUserRequest extends FormRequest
 
     public function rules(): array
     {
-        $userId = $this->route('user');
+        $userId = $this->route('user') ?? $this->route('id');
 
         return [
             'first_name' => ['sometimes', 'string', 'max:255'],
@@ -27,8 +28,18 @@ class UpdateUserRequest extends FormRequest
             'url' => ['sometimes', 'string', 'max:100'],
             'bio' => ['sometimes', 'string', 'max:5000'],
             'password' => ['sometimes', 'string', 'min:8'],
-            'role' => ['sometimes', 'string'],
+            'role' => ['sometimes', 'string', Rule::in($this->availableRoles())],
         ];
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function availableRoles(): array
+    {
+        $roles = app(RoleService::class)->getRoles();
+
+        return array_keys($roles);
     }
 
     protected function failedValidation(Validator $validator): void
@@ -36,6 +47,7 @@ class UpdateUserRequest extends FormRequest
         throw new HttpResponseException(response()->json([
             'success' => false,
             'message' => 'Validation failed.',
+            'code' => 'VALIDATION_ERROR',
             'errors' => $validator->errors(),
         ], 422));
     }
