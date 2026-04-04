@@ -2,9 +2,11 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Services\RoleService;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Validation\Rule;
 
 class StoreUserRequest extends FormRequest
 {
@@ -22,7 +24,7 @@ class StoreUserRequest extends FormRequest
             'first_name' => ['sometimes', 'string', 'max:255'],
             'last_name' => ['sometimes', 'string', 'max:255'],
             'url' => ['sometimes', 'string', 'max:100'],
-            'role' => ['required', 'string'],
+            'role' => ['required', 'string', Rule::in($this->availableRoles())],
             'send_notification' => ['sometimes', 'boolean'],
         ];
     }
@@ -33,7 +35,18 @@ class StoreUserRequest extends FormRequest
             'login.unique' => 'This username is already registered.',
             'email.unique' => 'This email address is already registered.',
             'role.required' => 'A role must be assigned to the user.',
+            'role.in' => 'The selected role is invalid.',
         ];
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function availableRoles(): array
+    {
+        $roles = app(RoleService::class)->getRoles();
+
+        return array_keys($roles);
     }
 
     protected function failedValidation(Validator $validator): void
@@ -41,6 +54,7 @@ class StoreUserRequest extends FormRequest
         throw new HttpResponseException(response()->json([
             'success' => false,
             'message' => 'Validation failed.',
+            'code' => 'VALIDATION_ERROR',
             'errors' => $validator->errors(),
         ], 422));
     }
